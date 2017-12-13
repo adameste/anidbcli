@@ -11,6 +11,7 @@ This client is developed, because of missing AniDB clients for multiplatform CLI
 - rename files using specified rules
 - organize files into folders (Watched/Unwatched + name of the anime)
 - utilizes multiple processor cores (asyncio)
+- project will be published to PyPi (ed2k library may be separated from the client)
 - *50 pts not required, just need to pass*
 
 # Used libraries
