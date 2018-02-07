@@ -1,5 +1,7 @@
 import socket
 import hashlib
+import time
+
 try:
     import apiwrapper.encryptors as encryptors
 except:
@@ -9,6 +11,7 @@ API_ADDRESS = "api.anidb.net"
 API_PORT = 9000
 SOCKET_TIMEOUT = 5
 MAX_RECEIVE_SIZE = 4096 # Max size of an UDP packet is about 1400B anyway
+RETRY_COUNT = 3
 
 API_ENDPOINT_ENCRYPT = "ENCRYPT user=%s&type=1"
 API_ENDPOINT_LOGIN = "AUTH user=%s&pass=%s&protover=3&client=anidbcli&clientver=1&enc=UTF8"
@@ -67,8 +70,17 @@ class AnidbConnector:
             if not self.session:
                 raise Exception("No session was set")
             content += "&s=%s" % self.session
-        self.socket.send(self.crypto.Encrypt(content))
-        res = self.socket.recv(MAX_RECEIVE_SIZE)
+        res = None
+        for i in range(RETRY_COUNT):
+            try:
+                self.socket.send(self.crypto.Encrypt(content))
+                res = self.socket.recv(MAX_RECEIVE_SIZE)
+                break
+            except: # Socket timeout / upd packet not sent
+                time.sleep(1)
+                pass
+        if not res:
+            raise Exception("Cound not connect to anidb UDP API: Socket timeout.")
         res = self.crypto.Decrypt(res)
         response = dict()
         response["code"] = int(res[:3])
