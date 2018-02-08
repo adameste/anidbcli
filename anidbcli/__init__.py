@@ -1,3 +1,4 @@
-from .AnidbConnector import AnidbConnector
+from anidbcli.anidbconnector import AnidbConnector
+from anidbcli.cli import main
 
-__all__ = ['AnidbConnector']
+__all__ = ['AnidbConnector', "main"]

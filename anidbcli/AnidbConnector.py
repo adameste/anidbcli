@@ -1,11 +1,7 @@
 import socket
 import hashlib
 import time
-
-try:
-    import apiwrapper.encryptors as encryptors
-except:
-    import encryptors
+import anidbcli.encryptors as encryptors
 
 API_ADDRESS = "api.anidb.net"
 API_PORT = 9000
@@ -35,12 +31,14 @@ class AnidbConnector:
 
     @classmethod
     def create_plain(cls, username, password):
+        """Creates unencrypted UDP API connection using the provided credenitals."""
         instance = cls()
         instance._login(username, password)
         return instance
 
     @classmethod
     def create_secure(cls, username, password, api_key):
+        """Creates AES128 encrypted UDP API connection using the provided credenitals and users api key."""
         instance = cls()
         enc_res = instance.send_request(API_ENDPOINT_ENCRYPT % username, False)
         if enc_res["code"] != ENCRYPTION_ENABLED:
@@ -59,19 +57,22 @@ class AnidbConnector:
         else:
             raise Exception(response["data"])
 
-    def logout(self):
+    def close(self):
+        """Logs out the user from current session and closes the connection."""
         if not self.session:
             raise Exception("Cannot logout: No active session.")
         self.send_request(API_ENDPOINT_LOGOUT % self.session, False)
+        self.socket.close()
 
 
     def send_request(self, content, appendSession = True):
+        """Sends request to the API and returns a dictionary containing response code and data."""
         if appendSession:
             if not self.session:
                 raise Exception("No session was set")
             content += "&s=%s" % self.session
         res = None
-        for i in range(RETRY_COUNT):
+        for _ in range(RETRY_COUNT):
             try:
                 self.socket.send(self.crypto.Encrypt(content))
                 res = self.socket.recv(MAX_RECEIVE_SIZE)
@@ -86,7 +87,3 @@ class AnidbConnector:
         response["code"] = int(res[:3])
         response["data"] = res[4:]
         return response
-
-if __name__ == "__main__":
-    cli = AnidbConnector.create_secure("gweana", "bruze9Etha", "key1234")
-    cli.logout()
