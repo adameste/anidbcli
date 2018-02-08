@@ -9,9 +9,11 @@ API_ENDPOINT_EPISODE = "EPISODE eid=%d"
 API_ENDPOINT_GROUP = "GROUP gid=%d"
 API_ENDPOINT_ANIME = "ANIME aid=%d"
 
+API_ENDPOINT_MYLYST_ADD = "MYLISTADD size=%d&ed2k=%s"
 
 RESULT_FILE = 220
-
+RESULT_MYLIST_ENTRY_ADDED = 210
+RESULT_ALREADY_IN_MYLIST = 310
 class Operation:
     @abstractmethod
     def Process(self, file): pass
@@ -21,7 +23,18 @@ class MylistAddOperation(Operation):
         self.connector = connector
         self.output = output
     def Process(self, file):
-        pass
+        try:
+            res = self.connector.send_request(API_ENDPOINT_MYLYST_ADD % (file["size", file["ed2k"]]))
+            if res == RESULT_MYLIST_ENTRY_ADDED:
+                self.output.success("Mylist entry added.")
+            elif res == RESULT_ALREADY_IN_MYLIST:
+                self.output.warning("Already in mylist.")
+            else:
+                self.output.error(f"Couldn't add to mylist: {res["data"]}")
+        except Exception as e:
+            self.output.error(f"Failed to add file to mylist: {e}")
+
+        return True
 
 class HashOperation(Operation):
     def __init__(self, output):
