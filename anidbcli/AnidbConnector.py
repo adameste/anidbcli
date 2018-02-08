@@ -65,7 +65,7 @@ class AnidbConnector:
         self.socket.close()
 
 
-    def send_request(self, content, appendSession = True):
+    def send_request(self, content, appendSession=True):
         """Sends request to the API and returns a dictionary containing response code and data."""
         if appendSession:
             if not self.session:
@@ -83,6 +83,7 @@ class AnidbConnector:
         if not res:
             raise Exception("Cound not connect to anidb UDP API: Socket timeout.")
         res = self.crypto.Decrypt(res)
+        res = res.rstrip("\n")
         response = dict()
         response["code"] = int(res[:3])
         response["data"] = res[4:]
