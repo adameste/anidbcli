@@ -30,7 +30,7 @@ class MylistAddOperation(Operation):
             elif res == RESULT_ALREADY_IN_MYLIST:
                 self.output.warning("Already in mylist.")
             else:
-                self.output.error(f"Couldn't add to mylist: {res["data"]}")
+                self.output.error("Couldn't add to mylist: %s" % res["data"])
         except Exception as e:
             self.output.error(f"Failed to add file to mylist: {e}")
 
@@ -61,7 +61,7 @@ class GetEpisodeInfoOperation(Operation):
             self.output.error(f"Failed to get episode info: {e}")
             return False
         if res["code"] != RESULT_FILE:
-            self.output.error(f"Failed to get episode info: {res["data"]}")
+            self.output.error("Failed to get episode info: %s" % res["data"])
             return False
         parsed = parse_data(res["data"])
         episodeinfo = {}
@@ -86,7 +86,7 @@ class GetFileInfoOperation(Operation):
             self.output.error(f"Failed to get file info: {e}")
             return False
         if res["code"] != RESULT_FILE:
-            self.output.error(f"Failed to get file info: {res["data"]}")
+            self.output.error("Failed to get file info: %s" % res["data"])
             return False
         parsed = parse_data(res["data"])
         fileinfo = {}
@@ -98,7 +98,7 @@ class GetFileInfoOperation(Operation):
         self.output.success("Successfully grabbed file info.")
         return True
 
-class GetGroupInfo(Operation):
+class GetGroupInfoOperation(Operation):
     def __init__(self, connector, output):
         self.connector = connector
         self.output = output
@@ -113,7 +113,7 @@ class GetGroupInfo(Operation):
                 self.output.error(f"Failed to get group info: {e}")
                 return False
             if res["code"] != RESULT_FILE:
-                self.output.error(f"Failed to get group info: {res["data"]}")
+                self.output.error("Failed to get group info: %s" % res["data"])
                 return False
             parsed = parse_data(res["data"])
             groupinfo = {}
@@ -124,7 +124,7 @@ class GetGroupInfo(Operation):
         file["groupinfo"] = groupinfo       
         return True
 
-class GetAnimeInfo(Operation):
+class GetAnimeInfoOperation(Operation):
     def __init__(self, connector, output):
         self.connector = connector
         self.output = output
@@ -139,7 +139,7 @@ class GetAnimeInfo(Operation):
                 self.output.error(f"Failed to get anime info: {e}")
                 return False
             if res["code"] != RESULT_FILE:
-                self.output.error(f"Failed to get anime info: {res["data"]}")
+                self.output.error("Failed to get anime info: %s" % res["data"])
                 return False
             parsed = parse_data(res["data"])
             animeinfo = {}
@@ -152,6 +152,13 @@ class GetAnimeInfo(Operation):
             self.output.success("Successfully grabbed anime info.")
         file["animeinfo"] = animeinfo
         return True
+
+class RenameOperation(Operation):
+    def __init__(self, output, target_path, date_format):
+        self.output = output
+        self.target_path = target_path
+    def Process(self, file):
+        pass
 
 
 def parse_data(raw_data):

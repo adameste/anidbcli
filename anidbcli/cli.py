@@ -43,15 +43,18 @@ def ed2k(ctx , files, clipboard):
 
 @cli.command(help="Utilize the anidb API. You can add files to mylist and/or organize them to directories using "
 + "information obtained from AniDB.")
-@click.option("--clipboard", "-c", is_flag=True, default=False, help="Copy the results to clipboard when finished.")
 @click.option('--username', "-u", prompt=True)
 @click.option('--password', "-p", prompt=True, hide_input=True)
 @click.option('--apikey', "-k")
 @click.option("--add", "-a", is_flag=True, default=False, help="Add files to mylist.")
-@click.option("--rename", "-r", help="Rename the files according to provided format. See documentation for more info.")
+@click.option("--rename", "-r", default=None, help="Rename the files according to provided format. See documentation for more info.")
+@click.option("--date-format", "-d",default=None, help="Date format. See documentation for details.")
 @click.argument("files", nargs=-1, type=click.Path(exists=True))
 @click.pass_context
-def api(ctx, username, password, apikey, add, rename, files):
+def api(ctx, username, password, apikey, add, rename, files, date_format):
+    if (not add and not rename):
+        ctx.obj["output"].info("Nothing to do.")
+        return
     try:
         if apikey:
             conn = anidbconnector.AnidbConnector.create_secure(username, password, apikey)
@@ -64,6 +67,12 @@ def api(ctx, username, password, apikey, add, rename, files):
     pipeline.append(operations.HashOperation(ctx.obj["output"]))
     if add:
         pipeline.append(operations.MylistAddOperation(conn, ctx.obj["output"]))
+    if rename:
+        pipeline.append(operations.GetFileInfoOperation(conn, ctx.obj["output"]))
+        pipeline.append(operations.GetEpisodeInfoOperation(conn, ctx.obj["output"]))
+        pipeline.append(operations.GetAnimeInfoOperation(conn, ctx.obj["output"]))
+        pipeline.append(operations.GetGroupInfoOperation(conn, ctx.obj["output"]))
+        pipeline.append(operations.RenameOperation(ctx.obj["output"], rename, date_format))
     to_process = get_files_to_process(files, ctx)
     for file in to_process:
         file_obj = {}
