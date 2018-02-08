@@ -69,9 +69,6 @@ def api(ctx, username, password, apikey, add, rename, files, date_format):
         pipeline.append(operations.MylistAddOperation(conn, ctx.obj["output"]))
     if rename:
         pipeline.append(operations.GetFileInfoOperation(conn, ctx.obj["output"]))
-        pipeline.append(operations.GetEpisodeInfoOperation(conn, ctx.obj["output"]))
-        pipeline.append(operations.GetAnimeInfoOperation(conn, ctx.obj["output"]))
-        pipeline.append(operations.GetGroupInfoOperation(conn, ctx.obj["output"]))
         pipeline.append(operations.RenameOperation(ctx.obj["output"], rename, date_format))
     to_process = get_files_to_process(files, ctx)
     for file in to_process:
