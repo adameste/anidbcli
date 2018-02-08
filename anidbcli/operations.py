@@ -4,12 +4,10 @@ import datetime
 
 import anidbcli.libed2k as libed2k 
 
-API_ENDPOINT_FILE = "FILE size=%d&ed2k=%s"
-API_ENDPOINT_EPISODE = "EPISODE eid=%d"
-API_ENDPOINT_GROUP = "GROUP gid=%d"
-API_ENDPOINT_ANIME = "ANIME aid=%d"
+# ed2k,md5,sha1,crc32,resolution,aired,year,romanji,kanji,english,epno,epname,epromanji,epkanji,groupname,shortgroupname
+API_ENDPOINT_FILE = "FILE size=%d&ed2k=%s&fmask=0078020800&amask=20E0F0C0"
 
-API_ENDPOINT_MYLYST_ADD = "MYLISTADD size=%d&ed2k=%s"
+API_ENDPOINT_MYLYST_ADD = "MYLISTADD size=%d&ed2k=%s&viewed=1"
 
 RESULT_FILE = 220
 RESULT_MYLIST_ENTRY_ADDED = 210
@@ -24,10 +22,10 @@ class MylistAddOperation(Operation):
         self.output = output
     def Process(self, file):
         try:
-            res = self.connector.send_request(API_ENDPOINT_MYLYST_ADD % (file["size", file["ed2k"]]))
-            if res == RESULT_MYLIST_ENTRY_ADDED:
+            res = self.connector.send_request(API_ENDPOINT_MYLYST_ADD % (file["size"], file["ed2k"]))
+            if res["code"] == RESULT_MYLIST_ENTRY_ADDED:
                 self.output.success("Mylist entry added.")
-            elif res == RESULT_ALREADY_IN_MYLIST:
+            elif res["code"] == RESULT_ALREADY_IN_MYLIST:
                 self.output.warning("Already in mylist.")
             else:
                 self.output.error("Couldn't add to mylist: %s" % res["data"])
@@ -41,7 +39,7 @@ class HashOperation(Operation):
         self.output = output
     def Process(self, file):
         try:
-            link = libed2k.get_ed2k_link(file["path"])
+            link = libed2k.hash_file(file["path"])
         except Exception as e:
             self.output.error(f"Failed to generate hash: {e}.")
             return False
@@ -50,30 +48,6 @@ class HashOperation(Operation):
         self.output.success("Generated ed2k link.")
         return True
 
-class GetEpisodeInfoOperation(Operation):
-    def __init__(self, connector, output):
-        self.connector = connector
-        self.output = output
-    def Process(self, file):
-        try:
-            res = self.connector.send_request(API_ENDPOINT_EPISODE % file["fileinfo"]["eid"])
-        except Exception as e:
-            self.output.error(f"Failed to get episode info: {e}")
-            return False
-        if res["code"] != RESULT_FILE:
-            self.output.error("Failed to get episode info: %s" % res["data"])
-            return False
-        parsed = parse_data(res["data"])
-        episodeinfo = {}
-        episodeinfo["epno"] = parsed[5]
-        episodeinfo["eng"] = parsed[6]
-        episodeinfo["romanji"] = parsed[7]
-        episodeinfo["kanji"] = parsed[8]
-        episodeinfo["aired"] = datetime.datetime.fromtimestamp(int(parsed[9]))
-
-        file["episodeinfo"] = episodeinfo
-        self.output.success("Successfully grabbed episode info.")
-        return True
 
 class GetFileInfoOperation(Operation):
     def __init__(self, connector, output):
@@ -88,69 +62,26 @@ class GetFileInfoOperation(Operation):
         if res["code"] != RESULT_FILE:
             self.output.error("Failed to get file info: %s" % res["data"])
             return False
-        parsed = parse_data(res["data"])
+        parsed = parse_data(res["data"].split("\n")[1])
         fileinfo = {}
-        fileinfo["fid"] = int(parsed[0])
-        fileinfo["aid"] = int(parsed[1])
-        fileinfo["eid"] = int(parsed[2])
-        fileinfo["gid"] = int(parsed[3])
-        file["fileinfo"] = fileinfo
+        fileinfo["ed2k"] = parsed[1]
+        fileinfo["md5"] = parsed[2]
+        fileinfo["sha1"] = parsed[3]
+        fileinfo["crc32"] = parsed[4]
+        fileinfo["resolution"] = parsed[5]
+        fileinfo["aired"] = datetime.datetime.fromtimestamp(int(parsed[6]))
+        fileinfo["year"] = parsed[7]
+        fileinfo["a_romaji"] = parsed[8]
+        fileinfo["a_kanji"] = parsed[9]
+        fileinfo["a_english"] = parsed[10]
+        fileinfo["ep_no"] = parsed[11]
+        fileinfo["ep_english"] = parsed[12]
+        fileinfo["ep_romaji"] = parsed[13]
+        fileinfo["ep_kanji"] = parsed[14]
+        fileinfo["g_name"] = parsed[15]
+        fileinfo["g_sname"] = parsed[16]
+        file["info"] = fileinfo
         self.output.success("Successfully grabbed file info.")
-        return True
-
-class GetGroupInfoOperation(Operation):
-    def __init__(self, connector, output):
-        self.connector = connector
-        self.output = output
-        self.cache = {}
-    def Process(self, file):
-        if file["fileinfo"]["gid"] in self.cache:
-            groupinfo = self.cache[file["fileinfo"]["gid"]]
-        else:
-            try:
-                res = self.connector.send_request(API_ENDPOINT_GROUP % file["fileinfo"]["gid"])
-            except Exception as e:
-                self.output.error(f"Failed to get group info: {e}")
-                return False
-            if res["code"] != RESULT_FILE:
-                self.output.error("Failed to get group info: %s" % res["data"])
-                return False
-            parsed = parse_data(res["data"])
-            groupinfo = {}
-            groupinfo["name"] = parsed[5]
-            groupinfo["shortname"] = parsed[6]
-            self.cache[file["fileinfo"]["gid"]] = groupinfo
-            self.output.success("Successfully grabbed group info.")
-        file["groupinfo"] = groupinfo       
-        return True
-
-class GetAnimeInfoOperation(Operation):
-    def __init__(self, connector, output):
-        self.connector = connector
-        self.output = output
-        self.cache = {}
-    def Process(self, file):
-        if file["fileinfo"]["aid"] in self.cache:
-            animeinfo = self.cache[file["fileinfo"]["aid"]]
-        else:
-            try:
-                res = self.connector.send_request(API_ENDPOINT_ANIME % file["fileinfo"]["aid"])
-            except Exception as e:
-                self.output.error(f"Failed to get anime info: {e}")
-                return False
-            if res["code"] != RESULT_FILE:
-                self.output.error("Failed to get anime info: %s" % res["data"])
-                return False
-            parsed = parse_data(res["data"])
-            animeinfo = {}
-            animeinfo["episodecount"] = int(parsed[2])
-            animeinfo["year"] = parsed[10]
-            animeinfo["romanji"] = parsed[12]
-            animeinfo["kanji"] = parsed[13]
-            animeinfo["english"] = parsed[14]          
-            self.cache[file["fileinfo"]["aid"]] = animeinfo
-            self.output.success("Successfully grabbed anime info.")
-        file["animeinfo"] = animeinfo
         return True
 
 class RenameOperation(Operation):
@@ -163,8 +94,9 @@ class RenameOperation(Operation):
 
 def parse_data(raw_data):
     res = raw_data.split("|")
-    for idx, item in res:
+    for idx, item in enumerate(res):
+        item = item.replace("<br />", "\n")
         item = item.replace("/", "|")
         item = item.replace("`", "'")
-        item = item.replace("<br />", "\n")
+        res[idx] = item
     return res
