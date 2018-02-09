@@ -90,10 +90,11 @@ class GetFileInfoOperation(Operation):
         return True
 
 class RenameOperation(Operation):
-    def __init__(self, output, target_path, date_format):
+    def __init__(self, output, target_path, date_format, delete_empty):
         self.output = output
         self.target_path = target_path
         self.date_format = date_format
+        self.delete_empty = delete_empty
     def Process(self, file):
         try:
             file["info"]["aired"] = file["info"]["aired"].strftime(self.date_format)
@@ -117,6 +118,8 @@ class RenameOperation(Operation):
                 self.output.success(f"File renamed to: {target + file_extension}")
             except Exception as e:
                 self.output.error(f"Failed to rename to: {target + file_extension}")
+        if self.delete_empty and len(os.listdir(os.path.dirname(file["path"]))) == 0:
+            os.removedirs(os.path.dirname(file["path"]))
         file["path"] = target + base_ext
 
 

@@ -47,11 +47,12 @@ def ed2k(ctx , files, clipboard):
 @click.option('--password', "-p", prompt=True, hide_input=True)
 @click.option('--apikey', "-k")
 @click.option("--add", "-a", is_flag=True, default=False, help="Add files to mylist.")
-@click.option("--rename", "-r", default=None, help="Rename the files according to provided format. See documentation for more info.")
-@click.option("--date-format", "-d",default="%Y-%m-%d", help="Date format. See documentation for details.")
+@click.option("--rename", "-r",  default=None, help="Rename the files according to provided format. See documentation for more info.")
+@click.option("--date-format", "-d", default="%Y-%m-%d", help="Date format. See documentation for details.")
+@click.option("--delete-empty", "-x", default=False, is_flag=True, help="Delete empty folders after moving files.")
 @click.argument("files", nargs=-1, type=click.Path(exists=True))
 @click.pass_context
-def api(ctx, username, password, apikey, add, rename, files, date_format):
+def api(ctx, username, password, apikey, add, rename, files, date_format, delete_empty):
     if (not add and not rename):
         ctx.obj["output"].info("Nothing to do.")
         return
@@ -69,7 +70,7 @@ def api(ctx, username, password, apikey, add, rename, files, date_format):
         pipeline.append(operations.MylistAddOperation(conn, ctx.obj["output"]))
     if rename:
         pipeline.append(operations.GetFileInfoOperation(conn, ctx.obj["output"]))
-        pipeline.append(operations.RenameOperation(ctx.obj["output"], rename, date_format))
+        pipeline.append(operations.RenameOperation(ctx.obj["output"], rename, date_format, delete_empty))
     to_process = get_files_to_process(files, ctx)
     for file in to_process:
         file_obj = {}
