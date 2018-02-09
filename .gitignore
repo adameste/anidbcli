@@ -101,3 +101,4 @@ ENV/
 .mypy_cache/
 
 __venv__
+.vscode

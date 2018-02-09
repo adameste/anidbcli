@@ -7,7 +7,7 @@ setup(
     description='Simple CLI for managing your anime collection using AniDB UDP API.',
     long_description="",
     author='Štěpán Adámek',
-    author_email='suchama4@fit.cvut.cz',
+    author_email='adamek.stepan@gmail.com',
     license='MIT',
     url='https://github.com/adameste/anidbcli',
     zip_safe=False,
@@ -25,8 +25,9 @@ setup(
         'joblib'
     ],
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
+        'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python',
@@ -34,5 +35,6 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Topic :: Utilities',
+        'Topic :: Multimedia :: Video'
     ],
 )

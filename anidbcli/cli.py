@@ -47,7 +47,7 @@ def ed2k(ctx , files, clipboard):
 @click.option('--apikey', "-k")
 @click.option("--add", "-a", is_flag=True, default=False, help="Add files to mylist.")
 @click.option("--rename", "-r",  default=None, help="Rename the files according to provided format. See documentation for more info.")
-@click.option("--keep-structure", "-k",  default=False, is_flag=True, help="Prepends file original directory path to the new path. See documentation for info.")
+@click.option("--keep-structure", "-s",  default=False, is_flag=True, help="Prepends file original directory path to the new path. See documentation for info.")
 @click.option("--date-format", "-d", default="%Y-%m-%d", help="Date format. See documentation for details.")
 @click.option("--delete-empty", "-x", default=False, is_flag=True, help="Delete empty folders after moving files.")
 @click.argument("files", nargs=-1, type=click.Path(exists=True))
