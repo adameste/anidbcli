@@ -3,6 +3,7 @@ import os
 import datetime
 import re
 import glob
+import errno
 
 import anidbcli.libed2k as libed2k 
 
@@ -102,14 +103,19 @@ class RenameOperation(Operation):
         target = self.target_path
         for tag in TAGS:
             target = target.replace(f"%{tag}%", re.sub(r'[^\w\-_\. ]', " ", file["info"][tag])) # Remove path invalid characters
-
+        target = ' '.join(target.split()) # Replace multiple whitespaces with one
         filename, base_ext = os.path.splitext(file["path"])
         for f in glob.glob(glob.escape(filename) + "*"): # Find subtitle files
             try:
                 _, file_extension = os.path.splitext(f)
+                try:
+                    os.makedirs(os.path.dirname(target + file_extension))
+                except OSError as e:
+                    if e.errno != errno.EEXIST:
+                        raise
                 os.rename(f, target + file_extension)
                 self.output.success(f"File renamed to: {target + file_extension}")
-            except:
+            except Exception as e:
                 self.output.error(f"Failed to rename to: {target + file_extension}")
         file["path"] = target + base_ext
 
