@@ -35,7 +35,7 @@ class MylistAddOperation(Operation):
             else:
                 self.output.error("Couldn't add to mylist: %s" % res["data"])
         except Exception as e:
-            self.output.error("Failed to add file to mylist: " + e)
+            self.output.error("Failed to add file to mylist: " + str(e))
 
         return True
 
@@ -46,7 +46,7 @@ class HashOperation(Operation):
         try:
             link = libed2k.hash_file(file["path"])
         except Exception as e:
-            self.output.error("Failed to generate hash: " + e)
+            self.output.error("Failed to generate hash: " + str(e))
             return False
         file["ed2k"] = link
         file["size"] = os.path.getsize(file["path"])
@@ -62,7 +62,7 @@ class GetFileInfoOperation(Operation):
         try:
             res = self.connector.send_request(API_ENDPOINT_FILE % (file["size"], file["ed2k"]))
         except Exception as e:
-            self.output.error("Failed to get file info: " + e)
+            self.output.error("Failed to get file info: " + str(e))
             return False
         if res["code"] != RESULT_FILE:
             self.output.error("Failed to get file info: %s" % res["data"])
