@@ -48,7 +48,7 @@ def ed2k(ctx , files, clipboard):
 @click.option('--apikey', "-k")
 @click.option("--add", "-a", is_flag=True, default=False, help="Add files to mylist.")
 @click.option("--rename", "-r", default=None, help="Rename the files according to provided format. See documentation for more info.")
-@click.option("--date-format", "-d",default=None, help="Date format. See documentation for details.")
+@click.option("--date-format", "-d",default="%Y-%m-%d", help="Date format. See documentation for details.")
 @click.argument("files", nargs=-1, type=click.Path(exists=True))
 @click.pass_context
 def api(ctx, username, password, apikey, add, rename, files, date_format):

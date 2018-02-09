@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
 import os
 import datetime
+import re
+import glob
 
 import anidbcli.libed2k as libed2k 
 
 # ed2k,md5,sha1,crc32,resolution,aired,year,romanji,kanji,english,epno,epname,epromanji,epkanji,groupname,shortgroupname
 API_ENDPOINT_FILE = "FILE size=%d&ed2k=%s&fmask=0078020800&amask=20E0F0C0"
+
+TAGS = ["ed2k","md5","sha1","crc32","resolution","aired","year","a_romaji","a_kanji","a_english","ep_no","ep_english","ep_romaji","ep_kanji","g_name","g_sname"]
 
 API_ENDPOINT_MYLYST_ADD = "MYLISTADD size=%d&ed2k=%s&viewed=1"
 
@@ -88,8 +92,26 @@ class RenameOperation(Operation):
     def __init__(self, output, target_path, date_format):
         self.output = output
         self.target_path = target_path
+        self.date_format = date_format
     def Process(self, file):
-        pass
+        try:
+            file["info"]["aired"] = file["info"]["aired"].strftime(self.date_format)
+        except:
+            self.output.warning("Invalid date format, using default one instead.")
+            file["info"]["aired"] = file["info"]["aired"].strftime("%Y-%m-%d")
+        target = self.target_path
+        for tag in TAGS:
+            target = target.replace(f"%{tag}%", re.sub(r'[^\w\-_\. ]', " ", file["info"][tag])) # Remove path invalid characters
+
+        filename, base_ext = os.path.splitext(file["path"])
+        for f in glob.glob(glob.escape(filename) + "*"): # Find subtitle files
+            try:
+                _, file_extension = os.path.splitext(f)
+                os.rename(f, target + file_extension)
+                self.output.success(f"File renamed to: {target + file_extension}")
+            except:
+                self.output.error(f"Failed to rename to: {target + file_extension}")
+        file["path"] = target + base_ext
 
 
 def parse_data(raw_data):

@@ -1,3 +1,3 @@
 import pytest
 
-pytest.main(["tests/test_connection.py"])
+pytest.main(["tests/test_operations.py"])

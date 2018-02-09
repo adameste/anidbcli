@@ -1,7 +1,9 @@
 import flexmock
 import anidbcli.operations as operations
 import tempfile
+import datetime
 import os
+import glob
 
 def test_add_ok():
     conn = flexmock.flexmock(send_request=lambda x: {"code": 210, "data": "MYLIST ENTRY ADDED"})
@@ -79,3 +81,25 @@ def test_hash_error():
     oper = operations.HashOperation(out)
     f = {"path": filename}
     assert not oper.Process(f) # pipeline should not continue without valid hash
+
+def test_rename_works_with_subtitles():
+    filename = "abcd.mkv"
+    target = ""
+    target_expanded = ""
+    f = {"path": filename, "info": {}}
+    for tag in operations.TAGS:
+        target += f"%{tag}%"
+        target_expanded += tag
+        f["info"][tag] = tag
+    f["info"]["aired"] = datetime.datetime(2018,2,9)
+    target_expanded=target_expanded.replace("aired", "2018-02-09")
+    out = flexmock.flexmock()
+    out.should_receive("success")
+    os_mock = flexmock.flexmock(os)
+    glob_mock = flexmock.flexmock(glob)
+    os_mock.should_receive("rename").with_args(filename, target_expanded + ".mkv").once()
+    os_mock.should_receive("rename").with_args("abcd.srt", target_expanded + ".srt").once()
+    lst = [filename, "abcd.srt"]
+    glob_mock.should_receive("glob").and_return(lst).once()
+    oper = operations.RenameOperation(out, target, "%Y-%m-%d")
+    oper.Process(f)

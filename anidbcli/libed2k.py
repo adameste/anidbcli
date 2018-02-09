@@ -34,6 +34,6 @@ def hash_file(file_path):
         a = generator(f)
         hashes = [md4_hash(data) for data in a]
         if len(hashes) == 1:
-            return hashes[0].encode("hex")
+            return hashes[0].hex()
         else:
             return md4_hash(b"".join(hashes)).hex()
