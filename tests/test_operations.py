@@ -66,7 +66,7 @@ def test_hash_operation():
     with open(filename, "wb") as f:
             f.write(b"\x6F" * 31457280)
     f = {"path": filename}
-    out = flexmock.flexmock()
+    out = flexmock.flexmock(error=lambda x:print(x))
     out.should_receive("success").once()
     oper = operations.HashOperation(out)
     oper.Process(f)

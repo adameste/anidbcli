@@ -21,7 +21,8 @@ setup(
         'click',
         'pycrypto',
         'colorama',
-        'pyperclip'
+        'pyperclip',
+        'joblib'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
