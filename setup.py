@@ -19,7 +19,7 @@ setup(
     },
     install_requires=[
         'click',
-        'pycrypto',
+        'pycryptodome',
         'colorama',
         'pyperclip',
         'joblib'
