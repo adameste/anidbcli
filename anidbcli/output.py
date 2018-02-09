@@ -16,17 +16,17 @@ class CliOutput:
 
     def info(self, message):
         if(self.quiet): return
-        self.__write_message(f"{colorama.Fore.BLUE}[INFO]{colorama.Style.RESET_ALL} {message}")
+        self.__write_message("%s[INFO]%s %s" % (colorama.Fore.BLUE, colorama.Style.RESET_ALL, str(message)))
 
     def success(self, message):
         if(self.quiet): return
-        self.__write_message(f"{colorama.Fore.GREEN}[SUCCESS]{colorama.Style.RESET_ALL} {message}")
+        self.__write_message("%s[SUCCESS]%s %s" % (colorama.Fore.GREEN, colorama.Style.RESET_ALL, str(message)))
 
     def warning(self, message):
-        self.__write_message(f"{colorama.Fore.YELLOW}[WARNING]{colorama.Style.RESET_ALL} {message}")        
+        self.__write_message("%s[WARNING]%s %s" % (colorama.Fore.YELLOW, colorama.Style.RESET_ALL, str(message)))     
 
     def error(self, message):
-        self.__write_message(f"{colorama.Fore.RED}[ERROR]{colorama.Style.RESET_ALL} {message}")
+        self.__write_message("%s[ERROR]%s %s" % (colorama.Fore.RED, colorama.Style.RESET_ALL, str(message)))
         
 
             

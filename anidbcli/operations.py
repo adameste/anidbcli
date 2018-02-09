@@ -35,7 +35,7 @@ class MylistAddOperation(Operation):
             else:
                 self.output.error("Couldn't add to mylist: %s" % res["data"])
         except Exception as e:
-            self.output.error(f"Failed to add file to mylist: {e}")
+            self.output.error("Failed to add file to mylist: " + e)
 
         return True
 
@@ -46,7 +46,7 @@ class HashOperation(Operation):
         try:
             link = libed2k.hash_file(file["path"])
         except Exception as e:
-            self.output.error(f"Failed to generate hash: {e}.")
+            self.output.error("Failed to generate hash: " + e)
             return False
         file["ed2k"] = link
         file["size"] = os.path.getsize(file["path"])
@@ -62,7 +62,7 @@ class GetFileInfoOperation(Operation):
         try:
             res = self.connector.send_request(API_ENDPOINT_FILE % (file["size"], file["ed2k"]))
         except Exception as e:
-            self.output.error(f"Failed to get file info: {e}")
+            self.output.error("Failed to get file info: " + e)
             return False
         if res["code"] != RESULT_FILE:
             self.output.error("Failed to get file info: %s" % res["data"])
@@ -107,24 +107,25 @@ class RenameOperation(Operation):
                 pass # Invalid input format, leave as is
         target = self.target_path
         for tag in TAGS:
-            target = target.replace(f"%{tag}%", filename_friendly(file["info"][tag])) # Remove path invalid characters
+            target = target.replace("%"+tag+"%", filename_friendly(file["info"][tag])) # Remove path invalid characters
         target = ' '.join(target.split()) # Replace multiple whitespaces with one
         filename, base_ext = os.path.splitext(file["path"])
         for f in glob.glob(glob.escape(filename) + "*"): # Find subtitle files
             try:
-                _, file_extension = os.path.splitext(f)
-                try:
-                    os.makedirs(os.path.dirname(target + file_extension))
-                except OSError as e:
-                    if e.errno != errno.EEXIST:
-                        raise
                 tmp_tgt = target
                 if self.keep_structure: # Prepend original directory if set
                     tmp_tgt = os.path.join(os.path.dirname(f),target)
+                _, file_extension = os.path.splitext(f)
+                try:
+                    os.makedirs(os.path.dirname(tmp_tgt + file_extension))
+                except:
+                    pass
+                print(f)
+                print(tmp_tgt + file_extension)
                 os.rename(f, tmp_tgt + file_extension)
-                self.output.success(f"File renamed to: {tmp_tgt + file_extension}")
+                self.output.success("File renamed to: \"%s\"" % (tmp_tgt + file_extension))
             except Exception as e:
-                self.output.error(f"Failed to rename to: {target + file_extension}")
+                self.output.error("Failed to rename to: \"%s\"" % (tmp_tgt + file_extension))
         if self.delete_empty and len(os.listdir(os.path.dirname(file["path"]))) == 0:
             os.removedirs(os.path.dirname(file["path"]))
         file["path"] = target + base_ext

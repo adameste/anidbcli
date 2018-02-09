@@ -75,7 +75,7 @@ def api(ctx, username, password, apikey, add, rename, files, keep_structure, dat
     for file in to_process:
         file_obj = {}
         file_obj["path"] = file
-        ctx.obj["output"].info(f'Processing file "{file}"')
+        ctx.obj["output"].info("Processing file \"" + file +"\"")
         for operation in pipeline:
             res = operation.Process(file_obj)
             if not res: # Critical error, cannot proceed with pipeline
