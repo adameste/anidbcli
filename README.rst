@@ -94,6 +94,8 @@ You can also move watched anime from unwatched directory to watched directory an
 Where
     * **"-x"** Delete empty folders after moving all files away.
 
+**NOTE: All files with same name and different extension (fx. subtitle files) will be renamed/moved as well.
+
 Complete list of usable tags in format string:
     * **%md5%** - md5 hash of file.
     * **%sha1%** - sha1 hash of file.
