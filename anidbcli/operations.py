@@ -120,8 +120,6 @@ class RenameOperation(Operation):
                     os.makedirs(os.path.dirname(tmp_tgt + file_extension))
                 except:
                     pass
-                print(f)
-                print(tmp_tgt + file_extension)
                 os.rename(f, tmp_tgt + file_extension)
                 self.output.success("File renamed to: \"%s\"" % (tmp_tgt + file_extension))
             except Exception as e:
