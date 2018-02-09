@@ -1,0 +1,5 @@
+click
+pycryptodome
+colorama
+pyperclip
+joblib
