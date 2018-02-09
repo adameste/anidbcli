@@ -103,7 +103,7 @@ class RenameOperation(Operation):
             file["info"]["aired"] = file["info"]["aired"].strftime("%Y-%m-%d")
         target = self.target_path
         for tag in TAGS:
-            target = target.replace(f"%{tag}%", re.sub(r'[^\w\-_\. ]', " ", file["info"][tag])) # Remove path invalid characters
+            target = target.replace(f"%{tag}%", filename_friendly(file["info"][tag])) # Remove path invalid characters
         target = ' '.join(target.split()) # Replace multiple whitespaces with one
         filename, base_ext = os.path.splitext(file["path"])
         for f in glob.glob(glob.escape(filename) + "*"): # Find subtitle files
@@ -122,6 +122,12 @@ class RenameOperation(Operation):
             os.removedirs(os.path.dirname(file["path"]))
         file["path"] = target + base_ext
 
+def filename_friendly(input):
+    replace_with_space = ["<", ">", "?", "/", "\\", "*", "|"]
+    for i in replace_with_space:
+        input = input.replace(i, " ")
+    input = input.replace("\"", "'")
+    input = input.replace(":","-")
 
 def parse_data(raw_data):
     res = raw_data.split("|")
