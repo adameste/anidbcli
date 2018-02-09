@@ -83,7 +83,7 @@ def test_hash_error():
     assert not oper.Process(f) # pipeline should not continue without valid hash
 
 def test_rename_works_with_subtitles():
-    filename = "abcd.mkv"
+    filename = "test/abcd.mkv"
     target = ""
     target_expanded = ""
     f = {"path": filename, "info": {}}
@@ -93,13 +93,20 @@ def test_rename_works_with_subtitles():
         f["info"][tag] = tag
     f["info"]["aired"] = datetime.datetime(2018,2,9)
     target_expanded=target_expanded.replace("aired", "2018-02-09")
-    out = flexmock.flexmock()
+    out = flexmock.flexmock(error=lambda x: print(x), warning=lambda x: None)
     out.should_receive("success")
     os_mock = flexmock.flexmock(os)
     glob_mock = flexmock.flexmock(glob)
-    os_mock.should_receive("rename").with_args(filename, target_expanded + ".mkv").once()
-    os_mock.should_receive("rename").with_args("abcd.srt", target_expanded + ".srt").once()
-    lst = [filename, "abcd.srt"]
-    glob_mock.should_receive("glob").and_return(lst).once()
-    oper = operations.RenameOperation(out, target, "%Y-%m-%d")
+    os_mock.should_receive("rename").with_args("test/abcd.mkv", target_expanded + ".mkv").once()
+    os_mock.should_receive("rename").with_args("test/abcd.srt", target_expanded + ".srt").once()
+    os_mock.should_receive("rename").with_args("test/abcd.mkv", "test\\" + target_expanded + ".mkv").once()
+    os_mock.should_receive("rename").with_args("test/abcd.srt", "test\\" + target_expanded + ".srt").once()
+    os_mock.should_receive("makedirs").at_least().once()
+    lst = [filename, "test/abcd.srt"]
+    glob_mock.should_receive("glob").and_return(lst)
+    oper = operations.RenameOperation(out, target, "%Y-%m-%d", False, False)
+    oper2 = operations.RenameOperation(out, target, "%Y-%m-%d", False, True)
     oper.Process(f)
+    assert f["path"] != filename # Should be changed for next elements in pipeline
+    f["path"] = filename
+    oper2.Process(f)

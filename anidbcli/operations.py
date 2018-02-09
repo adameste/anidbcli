@@ -90,17 +90,21 @@ class GetFileInfoOperation(Operation):
         return True
 
 class RenameOperation(Operation):
-    def __init__(self, output, target_path, date_format, delete_empty):
+    def __init__(self, output, target_path, date_format, delete_empty, keep_structure):
         self.output = output
         self.target_path = target_path
         self.date_format = date_format
         self.delete_empty = delete_empty
+        self.keep_structure = keep_structure
     def Process(self, file):
         try:
             file["info"]["aired"] = file["info"]["aired"].strftime(self.date_format)
         except:
             self.output.warning("Invalid date format, using default one instead.")
-            file["info"]["aired"] = file["info"]["aired"].strftime("%Y-%m-%d")
+            try:
+                file["info"]["aired"] = file["info"]["aired"].strftime("%Y-%m-%d")
+            except:
+                pass # Invalid input format, leave as is
         target = self.target_path
         for tag in TAGS:
             target = target.replace(f"%{tag}%", filename_friendly(file["info"][tag])) # Remove path invalid characters
@@ -114,8 +118,11 @@ class RenameOperation(Operation):
                 except OSError as e:
                     if e.errno != errno.EEXIST:
                         raise
-                os.rename(f, target + file_extension)
-                self.output.success(f"File renamed to: {target + file_extension}")
+                tmp_tgt = target
+                if self.keep_structure: # Prepend original directory if set
+                    tmp_tgt = os.path.join(os.path.dirname(f),target)
+                os.rename(f, tmp_tgt + file_extension)
+                self.output.success(f"File renamed to: {tmp_tgt + file_extension}")
             except Exception as e:
                 self.output.error(f"Failed to rename to: {target + file_extension}")
         if self.delete_empty and len(os.listdir(os.path.dirname(file["path"]))) == 0:
@@ -128,6 +135,7 @@ def filename_friendly(input):
         input = input.replace(i, " ")
     input = input.replace("\"", "'")
     input = input.replace(":","-")
+    return input
 
 def parse_data(raw_data):
     res = raw_data.split("|")
