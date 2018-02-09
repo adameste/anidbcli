@@ -33,10 +33,9 @@ def ed2k(ctx , files, clipboard):
     to_process = get_files_to_process(files, ctx)
     links = []
     for file in to_process:
-        if check_extension(file, ctx.obj["extensions"]):
-            link = libed2k.get_ed2k_link(file)
-            print(link)
-            links.append(link)
+        link = libed2k.get_ed2k_link(file)
+        print(link)
+        links.append(link)
     if clipboard:
         pyperclip.copy("\n".join(links))
         ctx.obj["output"].success("All links were copied to clipboard.")
@@ -91,7 +90,11 @@ def get_files_to_process(files, ctx):
             for folder, _, files in os.walk(file):
                 for filename in files:
                     to_process.append(os.path.join(folder,filename))
-    return to_process
+    ret = []
+    for f in to_process:
+        if (check_extension(f, ctx.obj["extensions"])):
+            ret.append(f)
+    return ret
 
 def check_extension(path, extensions):
     if not extensions:
