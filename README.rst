@@ -1,0 +1,112 @@
+anidbcli
+===========================
+Anidbcli is a simple command line interface for managing your anime collection on your local computer or NAS (using only ssh).
+
+Key features
+---------------------------
+    * ed2k hashing library utilizing multiple cores
+    * adding anime to mylist
+    * utilize data from anidb to move/rename the files
+    * moves/renames the subtitle and other files with same extension
+    * encryption
+
+Installation
+---------------------------
+
+The package can be installed automatically using pip.
+
+.. code-block:: bash
+
+   pip install anidbcli
+
+Package can be also installed from source like this.
+
+.. code-block:: bash
+
+    python setup.py install
+
+After installation anidbcli can be invoked like a python module
+
+.. code-block:: bash
+
+    python -m anidbcli
+
+or directly by typing following in the command line
+
+.. code-block:: bash
+
+    anidbcli
+
+Quickstart
+---------------------------
+The basic syntax is
+
+.. code-block:: bash
+
+    anidbcli [OPTIONS] ed2k/api [OPTIONS] ARGS
+
+If you want to just generate ed2k links for mkv and mp4 files recursively for given folders and copy them to clipboard, use:
+
+.. code-block:: bash
+
+    anidbcli -r -e mkv,mp4 ed2k -c "path/to/directory" "path/to/directory2"
+
+Where
+    * **-r** is recursive
+    * **-e** comma separated list of extensions, that are treated as anime files
+
+
+To add all mkv files from directory resursively to mylist use:
+
+.. code-block:: bash
+
+    anidbcli -r -e mkv api -u "username" -p "password" -k "apikey" -a "path/to/directory"
+
+Where
+    * **"password"** is your anidb password
+    * **"username"** is your anidb username
+    * **"apikey"** is anidb upd api key, that you can set at http://anidb.net/perl-bin/animedb.pl?show=profile. If no key is provided, unencrypted connection will be used.
+
+Optionally, if you don't provide password or username, you will be prompted to input them.
+
+.. code-block:: bash
+
+    anidbcli -r -e mkv api -k "apikey" -a "path/to/directory"
+    Enter your username: "username"
+    Enter your password: "password"
+
+To rename all mkv and mp4 files in directory recursively using data from api you can call
+
+.. code-block:: bash
+
+    anidbcli -r -e mkv,mp4 api -u "username" -p "password" -k "apikey" -sr "%ep_no% - %ep_english% [%g_name%]" "path/to/directory"
+
+Where
+    * **"-r"** rename using provided format string
+    * **"-s"** prepend original file path to each renamed file. Without this flag the files would me moved to current directory.
+
+You can also move watched anime from unwatched directory to watched directory and add it to mylist at the same time using following command.
+
+.. code-block:: bash
+
+    anidbcli -r -e mkv,mp4 api -u "username" -p "password" -k "apikey" -xr "watched/%a_english%/%ep_no% - %ep_english% [%g_name%]" "unwatched/anime1" "unwatched/anime2"
+
+Where
+    * **"-x"** Delete empty folders after moving all files away.
+
+Complete list of usable tags in format string:
+    * **%md5%** - md5 hash of file.
+    * **%sha1%** - sha1 hash of file.
+    * **%crc32%** - crc32 hash of file.
+    * **%resolution%** - file resolution, for example "1920x1080"
+    * **%aired%** - Episode aired date. Only option that needs "--date-format" option. You can find list of available tags at https://docs.python.org/3.6/library/time.html#time.strftime.
+    * **%year%** - Year, the anime was aired. Can be a timespan, if the anime was aired several years "1990-2005" etc.
+    * **%a_romaji%** - Anime title in romaji.
+    * **%a_kanji%** - Anime title in kanji.
+    * **%a_english%** - English anime title.
+    * **%ep_no%** - Episode number. Prepends the necessary zeros, fx. 001, 01
+    * **%ep_english%** - English episode name.
+    * **%ep_romaji%** - Episode name in romaji.
+    * **%ep_kanji%** - Episode name in kanji.
+    * **%g_name%** - Group that released the anime. fx. HorribleSubs.
+    * **%g_sname%** - Short group name.
