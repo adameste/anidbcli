@@ -85,6 +85,10 @@ Where
     * **"-r"** rename using provided format string
     * **"-s"** prepend original file path to each renamed file. Without this flag the files would me moved to current directory.
 
+Also along with the parameter **"-r"** you can use one of the following parameters:
+    * **"-h"** Create hardlinks instead of renaming.
+	* **"-l"** Create softlinks instead of renaming.
+	
 You can also move watched anime from unwatched directory to watched directory and add it to mylist at the same time using following command.
 
 .. code-block:: bash
@@ -96,7 +100,7 @@ Where
 
 **NOTE: All files with same name and different extension (fx. subtitle files) will be renamed/moved as well.**
 
-Complete list of usable tags in format string:
+Selected usable tags:
     * **%md5%** - md5 hash of file.
     * **%sha1%** - sha1 hash of file.
     * **%crc32%** - crc32 hash of file.
@@ -112,3 +116,11 @@ Complete list of usable tags in format string:
     * **%ep_kanji%** - Episode name in kanji.
     * **%g_name%** - Group that released the anime. fx. HorribleSubs.
     * **%g_sname%** - Short group name.
+	
+Complete list of usable tags in format string:
+
+%fid%, %aid%, %eid%, %gid%, %lid%, %status%, %size%, %ed2k%, %md5%, %sha1%, %crc32%, %color_depth%,
+%quality%, %source%, %audio_codec%, %audio_bitrate%, %video_codec%, %video_bitrate%, %resolution%,
+%filetype%, %dub_language%, %sub_language%, %length%, %aired%, %filename%, %ep_total%, %ep_last%, %year%,
+%a_type%, %a_categories%, %a_romaji%, %a_kanji%, %a_english%, %a_other%, %a_short%, %a_synonyms%, %ep_no%,
+%ep_english%, %ep_romaji%, %ep_kanji%, %g_name%, %g_sname%, %version%, %censored%
