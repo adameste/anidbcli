@@ -85,7 +85,7 @@ Where
     * **"-r"** rename using provided format string
     * **"-s"** prepend original file path to each renamed file. Without this flag the files would me moved to current directory.
 
-Also along with the parameter **"-r"** you can use one of the following parameters:
+Also along with the parameter "-r" you can use one of the following parameters:
     * **"-h"** Create hardlinks instead of renaming.
 	* **"-l"** Create softlinks instead of renaming.
 	
