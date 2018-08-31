@@ -8,9 +8,8 @@ import errno
 import anidbcli.libed2k as libed2k 
 
 # ed2k,md5,sha1,crc32,resolution,aired,year,romanji,kanji,english,epno,epname,epromanji,epkanji,groupname,shortgroupname
-API_ENDPOINT_FILE = "FILE size=%d&ed2k=%s&fmask=0078020800&amask=20E0F0C0"
+API_ENDPOINT_FILE = "FILE size=%d&ed2k=%s&fmask=79FAFFE900&amask=F2FCF0C0"
 
-TAGS = ["ed2k","md5","sha1","crc32","resolution","aired","year","a_romaji","a_kanji","a_english","ep_no","ep_english","ep_romaji","ep_kanji","g_name","g_sname"]
 
 API_ENDPOINT_MYLYST_ADD = "MYLISTADD size=%d&ed2k=%s&viewed=1"
 
@@ -69,33 +68,72 @@ class GetFileInfoOperation(Operation):
             return False
         parsed = parse_data(res["data"].split("\n")[1])
         fileinfo = {}
-        fileinfo["ed2k"] = parsed[1]
-        fileinfo["md5"] = parsed[2]
-        fileinfo["sha1"] = parsed[3]
-        fileinfo["crc32"] = parsed[4]
-        fileinfo["resolution"] = parsed[5]
-        fileinfo["aired"] = datetime.datetime.fromtimestamp(int(parsed[6]))
-        fileinfo["year"] = parsed[7]
-        fileinfo["a_romaji"] = parsed[8]
-        fileinfo["a_kanji"] = parsed[9]
-        fileinfo["a_english"] = parsed[10]
-        fileinfo["ep_no"] = parsed[11]
-        fileinfo["ep_english"] = parsed[12]
-        fileinfo["ep_romaji"] = parsed[13]
-        fileinfo["ep_kanji"] = parsed[14]
-        fileinfo["g_name"] = parsed[15]
-        fileinfo["g_sname"] = parsed[16]
+        fileinfo["fid"] = parsed[0]
+        fileinfo["aid"] = parsed[1]
+        fileinfo["eid"] = parsed[2]
+        fileinfo["gid"] = parsed[3]
+        fileinfo["lid"] = parsed[4]
+        fileinfo["file_state"] = parsed[5]
+        fileinfo["size"] = parsed[6]
+        fileinfo["ed2k"] = parsed[7]
+        fileinfo["md5"] = parsed[8]
+        fileinfo["sha1"] = parsed[9]
+        fileinfo["crc32"] = parsed[10]
+        fileinfo["color_depth"] = parsed[11]
+        fileinfo["quality"] = parsed[12]
+        fileinfo["source"] = parsed[13]
+        fileinfo["audio_codec"] = parsed[14]
+        fileinfo["audio_bitrate"] = parsed[15]
+        fileinfo["video_codec"] = parsed[16]
+        fileinfo["video_bitrate"] = parsed[17]
+        fileinfo["resolution"] = parsed[18]
+        fileinfo["filetype"] = parsed[19]
+        fileinfo["dub_language"] = parsed[20]
+        fileinfo["sub_language"] = parsed[21]
+        fileinfo["length"] = parsed[22]
+        fileinfo["aired"] = datetime.datetime.fromtimestamp(int(parsed[23]))
+        fileinfo["filename"] = parsed[24]
+        fileinfo["ep_total"] = parsed[25]
+        fileinfo["ep_last"] = parsed[26]
+        fileinfo["year"] = parsed[27]
+        fileinfo["a_type"] = parsed[28]
+        fileinfo["a_categories"] = parsed[29]
+        fileinfo["a_romaji"] = parsed[30]
+        fileinfo["a_kanji"] = parsed[31]
+        fileinfo["a_english"] = parsed[32]
+        fileinfo["a_other"] = parsed[33]
+        fileinfo["a_short"] = parsed[34]
+        fileinfo["a_synonyms"] = parsed[35]
+        fileinfo["ep_no"] = parsed[36]
+        fileinfo["ep_english"] = parsed[37]
+        fileinfo["ep_romaji"] = parsed[38]
+        fileinfo["ep_kanji"] = parsed[39]
+        fileinfo["g_name"] = parsed[40]
+        fileinfo["g_sname"] = parsed[41]
+        fileinfo["version"] = ""
+        fileinfo["censored"] = ""
+        
+        status = int(fileinfo["status"])
+        if status & 4: fileinfo["version"] = "v2"
+        if status & 8: fileinfo["version"] = "v3"
+        if status & 16: fileinfo["version"] = "v4"
+        if status & 32: fileinfo["version"] = "v5"
+        if status & 64: fileinfo["censored"] = "uncensored"
+        if status & 128: fileinfo["censored"] = "censored"
+
         file["info"] = fileinfo
         self.output.success("Successfully grabbed file info.")
         return True
 
 class RenameOperation(Operation):
-    def __init__(self, output, target_path, date_format, delete_empty, keep_structure):
+    def __init__(self, output, target_path, date_format, delete_empty, keep_structure, soft_link, hard_link):
         self.output = output
         self.target_path = target_path
         self.date_format = date_format
         self.delete_empty = delete_empty
         self.keep_structure = keep_structure
+        self.soft_link = soft_link
+        self.hard_link = hard_link
     def Process(self, file):
         try:
             file["info"]["aired"] = file["info"]["aired"].strftime(self.date_format)
@@ -106,7 +144,8 @@ class RenameOperation(Operation):
             except:
                 pass # Invalid input format, leave as is
         target = self.target_path
-        for tag in TAGS:
+        for tag in file["info"]:
+            print(tag + ": " + file["info"][tag])
             target = target.replace("%"+tag+"%", filename_friendly(file["info"][tag])) # Remove path invalid characters
         target = ' '.join(target.split()) # Replace multiple whitespaces with one
         filename, base_ext = os.path.splitext(file["path"])
@@ -120,10 +159,18 @@ class RenameOperation(Operation):
                     os.makedirs(os.path.dirname(tmp_tgt + file_extension))
                 except:
                     pass
-                os.rename(f, tmp_tgt + file_extension)
-                self.output.success("File renamed to: \"%s\"" % (tmp_tgt + file_extension))
+                if self.soft_link:
+                    os.symlink(f, tmp_tgt + file_extension)
+                    self.output.success("Created soft link: \"%s\"" % (tmp_tgt + file_extension))
+                elif self.hard_link:
+                    os.link(f, tmp_tgt + file_extension)
+                    self.output.success("Created hard link: \"%s\"" % (tmp_tgt + file_extension))
+                else:
+                    os.rename(f, tmp_tgt + file_extension)
+                    self.output.success("File renamed to: \"%s\"" % (tmp_tgt + file_extension))
             except Exception as e:
-                self.output.error("Failed to rename to: \"%s\"" % (tmp_tgt + file_extension))
+                self.output.error(e)
+                self.output.error("Failed to rename/link to: \"%s\"" % (tmp_tgt + file_extension) + "\n" + e)
         if self.delete_empty and len(os.listdir(os.path.dirname(file["path"]))) == 0:
             os.removedirs(os.path.dirname(file["path"]))
         file["path"] = target + base_ext

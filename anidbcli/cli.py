@@ -7,7 +7,7 @@ import anidbcli.output as output
 import anidbcli.operations as operations
 
 @click.group(name="anidbcli")
-@click.version_option(version="1.22", prog_name="anidbcli")
+@click.version_option(version="1.23", prog_name="anidbcli")
 @click.option("--recursive", "-r", is_flag=True, default=False, help="Scan folders for files recursively.")
 @click.option("--extensions", "-e",  help="List of file extensions separated by , character.")
 @click.option("--quiet", "-q", is_flag=True, default=False, help="Display only warnings and errors.")
@@ -47,12 +47,14 @@ def ed2k(ctx , files, clipboard):
 @click.option('--apikey', "-k")
 @click.option("--add", "-a", is_flag=True, default=False, help="Add files to mylist.")
 @click.option("--rename", "-r",  default=None, help="Rename the files according to provided format. See documentation for more info.")
+@click.option("--link", "-h", is_flag=True,  default=False, help="Create a hardlink instead of renaming. Should be used with rename parameter.")
+@click.option("--softlink", "-l", is_flag=True, default=False, help="Create a symbolic link instead of renaming. Should be used with rename parameter.")
 @click.option("--keep-structure", "-s",  default=False, is_flag=True, help="Prepends file original directory path to the new path. See documentation for info.")
 @click.option("--date-format", "-d", default="%Y-%m-%d", help="Date format. See documentation for details.")
 @click.option("--delete-empty", "-x", default=False, is_flag=True, help="Delete empty folders after moving files.")
 @click.argument("files", nargs=-1, type=click.Path(exists=True))
 @click.pass_context
-def api(ctx, username, password, apikey, add, rename, files, keep_structure, date_format, delete_empty):
+def api(ctx, username, password, apikey, add, rename, files, keep_structure, date_format, delete_empty, link, softlink):
     if (not add and not rename):
         ctx.obj["output"].info("Nothing to do.")
         return
@@ -70,7 +72,7 @@ def api(ctx, username, password, apikey, add, rename, files, keep_structure, dat
         pipeline.append(operations.MylistAddOperation(conn, ctx.obj["output"]))
     if rename:
         pipeline.append(operations.GetFileInfoOperation(conn, ctx.obj["output"]))
-        pipeline.append(operations.RenameOperation(ctx.obj["output"], rename, date_format, delete_empty, keep_structure))
+        pipeline.append(operations.RenameOperation(ctx.obj["output"], rename, date_format, delete_empty, keep_structure, softlink, link))
     to_process = get_files_to_process(files, ctx)
     for file in to_process:
         file_obj = {}
