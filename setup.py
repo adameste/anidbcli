@@ -5,7 +5,7 @@ with open('README.rst') as f:
 
 setup(
     name='anidbcli',
-    version='1.31',
+    version='1.32',
     keywords='Anidb UDP API CLI client ed2k rename mylist',
     description='Simple CLI for managing your anime collection using AniDB UDP API.',
     long_description=long_description,

@@ -113,7 +113,7 @@ class GetFileInfoOperation(Operation):
         fileinfo["version"] = ""
         fileinfo["censored"] = ""
         
-        status = int(fileinfo["status"])
+        status = int(fileinfo["file_state"])
         if status & 4: fileinfo["version"] = "v2"
         if status & 8: fileinfo["version"] = "v3"
         if status & 16: fileinfo["version"] = "v4"
