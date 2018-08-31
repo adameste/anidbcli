@@ -145,7 +145,6 @@ class RenameOperation(Operation):
                 pass # Invalid input format, leave as is
         target = self.target_path
         for tag in file["info"]:
-            print(tag + ": " + file["info"][tag])
             target = target.replace("%"+tag+"%", filename_friendly(file["info"][tag])) # Remove path invalid characters
         target = ' '.join(target.split()) # Replace multiple whitespaces with one
         filename, base_ext = os.path.splitext(file["path"])
