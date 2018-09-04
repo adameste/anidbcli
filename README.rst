@@ -5,6 +5,7 @@ Anidbcli is a simple command line interface for managing your anime collection o
 Requirements
 ---------------------------
     * `Python 3.6 <https://www.python.org/downloads/>`_ or newer (version 3.5 seems to work as well)
+
 Key features
 ---------------------------
     * ed2k hashing library utilizing multiple cores
