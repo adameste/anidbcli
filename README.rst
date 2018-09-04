@@ -2,6 +2,9 @@ anidbcli
 ===========================
 Anidbcli is a simple command line interface for managing your anime collection on your local computer or NAS (using only ssh).
 
+Requirements
+---------------------------
+    * `Python 3.6 <https://www.python.org/downloads/>`_ or newer (version 3.5 seems to work as well)
 Key features
 ---------------------------
     * ed2k hashing library utilizing multiple cores
@@ -87,7 +90,7 @@ Where
 
 Also along with the parameter "-r" you can use one of the following parameters:
     * **"-h"** Create hardlinks instead of renaming.
-	* **"-l"** Create softlinks instead of renaming.
+    * **"-l"** Create softlinks instead of renaming.
 	
 You can also move watched anime from unwatched directory to watched directory and add it to mylist at the same time using following command.
 
