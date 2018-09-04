@@ -66,7 +66,6 @@ class GetFileInfoOperation(Operation):
         if res["code"] != RESULT_FILE:
             self.output.error("Failed to get file info: %s" % res["data"])
             return False
-        print(res["data"])
         parsed = parse_data(res["data"].split("\n")[1])
         fileinfo = {}
         fileinfo["fid"] = parsed[0]
