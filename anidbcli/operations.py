@@ -167,9 +167,8 @@ class RenameOperation(Operation):
                 else:
                     os.rename(f, tmp_tgt + file_extension)
                     self.output.success("File renamed to: \"%s\"" % (tmp_tgt + file_extension))
-            except Exception as e:
-                self.output.error(e)
-                self.output.error("Failed to rename/link to: \"%s\"" % (tmp_tgt + file_extension) + "\n" + e)
+            except:
+                self.output.error("Failed to rename/link to: \"%s\"" % (tmp_tgt + file_extension) + "\n")
         if self.delete_empty and len(os.listdir(os.path.dirname(file["path"]))) == 0:
             os.removedirs(os.path.dirname(file["path"]))
         file["path"] = target + base_ext
