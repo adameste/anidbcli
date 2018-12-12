@@ -174,11 +174,12 @@ class RenameOperation(Operation):
         file["path"] = target + base_ext
 
 def filename_friendly(input):
-    replace_with_space = ["<", ">", "?", "/", "\\", "*", "|"]
+    replace_with_space = ["<", ">", "/", "\\", "*", "|"]
     for i in replace_with_space:
         input = input.replace(i, " ")
     input = input.replace("\"", "'")
-    input = input.replace(":","-")
+    input = input.replace(":","")
+    input = input.replace("?","")
     return input
 
 def parse_data(raw_data):
