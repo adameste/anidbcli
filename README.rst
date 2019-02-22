@@ -22,6 +22,7 @@ The package can be installed automatically using pip.
 .. code-block:: bash
 
    pip install anidbcli
+   pip install --upgrade anidbcli #update
 
 Package can be also installed from source like this.
 
