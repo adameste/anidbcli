@@ -7,7 +7,7 @@ import anidbcli.output as output
 import anidbcli.operations as operations
 
 @click.group(name="anidbcli")
-@click.version_option(version="1.35", prog_name="anidbcli")
+@click.version_option(version="1.38", prog_name="anidbcli")
 @click.option("--recursive", "-r", is_flag=True, default=False, help="Scan folders for files recursively.")
 @click.option("--extensions", "-e",  help="List of file extensions separated by , character.")
 @click.option("--quiet", "-q", is_flag=True, default=False, help="Display only warnings and errors.")

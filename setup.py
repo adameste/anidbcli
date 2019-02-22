@@ -1,4 +1,4 @@
-# coding=latin-1
+# coding=utf-8
 from setuptools import setup, find_packages
 
 with open('README.rst') as f:
@@ -6,7 +6,7 @@ with open('README.rst') as f:
 
 setup(
     name='anidbcli',
-    version='1.36',
+    version='1.38',
     keywords='Anidb UDP API CLI client ed2k rename mylist',
     description='Simple CLI for managing your anime collection using AniDB UDP API.',
     long_description=long_description,
