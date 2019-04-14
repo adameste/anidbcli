@@ -4,11 +4,13 @@ import datetime
 import re
 import glob
 import errno
+import time
 
 import anidbcli.libed2k as libed2k 
 
 # ed2k,md5,sha1,crc32,resolution,aired,year,romanji,kanji,english,epno,epname,epromanji,epkanji,groupname,shortgroupname
 API_ENDPOINT_FILE = "FILE size=%d&ed2k=%s&fmask=79FAFFE900&amask=F2FCF0C0"
+API_ENDPOINT_FILE_ONLY_ANIMEINFO = "FILE size=%d&ed2k=%s&fmask=0000000000&amask=F2FCF0C0"
 
 
 API_ENDPOINT_MYLYST_ADD = "MYLISTADD size=%d&ed2k=%s&viewed=1"
@@ -67,6 +69,19 @@ class GetFileInfoOperation(Operation):
             self.output.error("Failed to get file info: %s" % res["data"])
             return False
         parsed = parse_data(res["data"].split("\n")[1])
+            if len(parsed) < 42:
+                try:
+                    parsed = parsed[:25] # Take file info only
+                    time.sleep(2) # UDP API allows max one request per 2 seconds
+                    res = self.connector.send_request(API_ENDPOINT_FILE_ONLY_ANIMEINFO % (file["size"], file["ed2k"]))
+                    parsed = parsed + parse_data(res["data"].split("\n")[1])[1:] # Add new anime info (file id on index 0)
+                except Exception as e:
+                    self.output.error("Failed to get file info: " + str(e))
+                    return False
+                if res["code"] != RESULT_FILE:
+                    self.output.error("Failed to get file info: %s" % res["data"])
+                    return False
+
         fileinfo = {}
         fileinfo["fid"] = parsed[0]
         fileinfo["aid"] = parsed[1]
