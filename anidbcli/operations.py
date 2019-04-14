@@ -69,18 +69,18 @@ class GetFileInfoOperation(Operation):
             self.output.error("Failed to get file info: %s" % res["data"])
             return False
         parsed = parse_data(res["data"].split("\n")[1])
-            if len(parsed) < 42:
-                try:
-                    parsed = parsed[:25] # Take file info only
-                    time.sleep(2) # UDP API allows max one request per 2 seconds
-                    res = self.connector.send_request(API_ENDPOINT_FILE_ONLY_ANIMEINFO % (file["size"], file["ed2k"]))
-                    parsed = parsed + parse_data(res["data"].split("\n")[1])[1:] # Add new anime info (file id on index 0)
-                except Exception as e:
-                    self.output.error("Failed to get file info: " + str(e))
-                    return False
-                if res["code"] != RESULT_FILE:
-                    self.output.error("Failed to get file info: %s" % res["data"])
-                    return False
+        if len(parsed) < 42:
+            try:
+                parsed = parsed[:25] # Take file info only
+                time.sleep(2) # UDP API allows max one request per 2 seconds
+                res = self.connector.send_request(API_ENDPOINT_FILE_ONLY_ANIMEINFO % (file["size"], file["ed2k"]))
+                parsed = parsed + parse_data(res["data"].split("\n")[1])[1:] # Add new anime info (file id on index 0)
+            except Exception as e:
+                self.output.error("Failed to get file info: " + str(e))
+                return False
+            if res["code"] != RESULT_FILE:
+                self.output.error("Failed to get file info: %s" % res["data"])
+                return False
 
         fileinfo = {}
         fileinfo["fid"] = parsed[0]
