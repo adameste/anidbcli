@@ -90,6 +90,9 @@ class AnidbConnector:
             with open(persist_file, "w") as file:
                 file.writelines(json.dumps(d))
         else:
+            try:
+                os.remove(persist_file)
+            except: pass # does not exist
             self.send_request(API_ENDPOINT_LOGOUT % self.session, False)
         self.socket.close()
 
