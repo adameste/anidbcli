@@ -1,0 +1,14 @@
+[
+  "tests/test_connection.py::test_encryption",
+  "tests/test_connection.py::test_unecrypted_initialization",
+  "tests/test_connection.py::test_encrypted_initialization",
+  "tests/test_connection.py::test_udp_send_retry",
+  "tests/test_operations.py::test_add_ok",
+  "tests/test_operations.py::test_add_already_in_mylist",
+  "tests/test_operations.py::test_add_send_exception",
+  "tests/test_operations.py::test_parse_file_info",
+  "tests/test_operations.py::test_parse_file_info_err",
+  "tests/test_operations.py::test_hash_operation",
+  "tests/test_operations.py::test_hash_error",
+  "tests/test_operations.py::test_rename_works_with_subtitles"
+]

@@ -93,6 +93,8 @@ Where
 Also along with the parameter "-r" you can use one of the following parameters:
     * **"-h"** Create hardlinks instead of renaming.
     * **"-l"** Create softlinks instead of renaming.
+    * **"-t"** Save session info instead of logging out (session lifetime is 35 minutes after last command). Use for subsequent calls of anidbcli to avoid api bans.
+    Anidbcli should be called with all the parameters as usual. If the session was saved before more than 35 minutes, a new session is created instead.
 	
 You can also move watched anime from unwatched directory to watched directory and add it to mylist at the same time using following command.
 

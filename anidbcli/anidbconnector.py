@@ -1,6 +1,8 @@
 import socket
 import hashlib
 import time
+import os
+import json
 import anidbcli.encryptors as encryptors
 
 API_ADDRESS = "api.anidb.net"
@@ -19,12 +21,16 @@ LOGIN_ACCEPTED_NEW_VERSION_AVAILABLE = 201
 
 
 class AnidbConnector:
-    def __init__(self):
+    def __init__(self, bind_addr = None):
         """For class initialization use class methods create_plain or create_secure."""
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        if bind_addr:
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.socket.bind(tuple(bind_addr))
         self.socket.connect((socket.gethostbyname_ex(API_ADDRESS)[2][0], API_PORT))
         self.socket.settimeout(SOCKET_TIMEOUT)
         self.crypto = encryptors.PlainTextCrypto()
+        self.salt = None
 
     def _set_crypto(self, crypto):
         self.crypto = crypto
@@ -43,10 +49,20 @@ class AnidbConnector:
         enc_res = instance.send_request(API_ENDPOINT_ENCRYPT % username, False)
         if enc_res["code"] != ENCRYPTION_ENABLED:
             raise Exception(enc_res["data"])
-        salt = enc_res["data"].split(" ")[0]
-        md5 = hashlib.md5(bytes(api_key + salt, "ascii"))
+        instance.salt = enc_res["data"].split(" ")[0]
+        md5 = hashlib.md5(bytes(api_key + instance.salt, "ascii"))
         instance._set_crypto(encryptors.Aes128TextEncryptor(md5.digest()))
         instance._login(username, password)
+        return instance
+    @classmethod
+    def create_from_session(cls, session_key, sock_addr, api_key, salt):
+        """Crates instance from an existing session. If salt is not None, encrypted instance is created."""
+        instance = cls(sock_addr)
+        instance.session = session_key
+        if (salt != None):
+            instance.salt = salt
+            md5 = hashlib.md5(bytes(api_key + instance.salt, "ascii"))
+            instance._set_crypto(encryptors.Aes128TextEncryptor(md5.digest()))
         return instance
 
 
@@ -57,11 +73,24 @@ class AnidbConnector:
         else:
             raise Exception(response["data"])
 
-    def close(self):
+    def close(self, persistent, persist_file):
         """Logs out the user from current session and closes the connection."""
         if not self.session:
             raise Exception("Cannot logout: No active session.")
-        self.send_request(API_ENDPOINT_LOGOUT % self.session, False)
+        if persistent:
+            try:
+                os.makedirs(os.path.dirname(persist_file))
+            except: pass # Exists
+            d = dict()
+            d["session_key"] = self.session
+            d["timestamp"] = time.time()
+            d["salt"] = None
+            d["sockaddr"] = self.socket.getsockname()
+            if (self.salt): d["salt"] = self.salt
+            with open(persist_file, "w") as file:
+                file.writelines(json.dumps(d))
+        else:
+            self.send_request(API_ENDPOINT_LOGOUT % self.session, False)
         self.socket.close()
 
 
