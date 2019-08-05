@@ -136,6 +136,11 @@ class GetFileInfoOperation(Operation):
         if status & 64: fileinfo["censored"] = "uncensored"
         if status & 128: fileinfo["censored"] = "censored"
 
+        if (fileinfo["ep_english"] is None or fileinfo["ep_english"].isspace()):
+            fileinfo["ep_english"] = fileinfo["ep_romaji"]
+        if (fileinfo["a_english"] is None or fileinfo["a_english"].isspace()):
+            fileinfo["a_english"] = fileinfo["a_romaji"]
+
         file["info"] = fileinfo
         self.output.success("Successfully grabbed file info.")
         return True
