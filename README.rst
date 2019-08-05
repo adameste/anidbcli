@@ -94,6 +94,7 @@ Also along with the parameter "-r" you can use one of the following parameters:
     * **"-h"** Create hardlinks instead of renaming.
     * **"-l"** Create softlinks instead of renaming.
     * **"-t"** Save session info instead of logging out (session lifetime is 35 minutes after last command). Use for subsequent calls of anidbcli to avoid api bans.
+
     Anidbcli should be called with all the parameters as usual. If the session was saved before more than 35 minutes, a new session is created instead.
 	
 You can also move watched anime from unwatched directory to watched directory and add it to mylist at the same time using following command.
@@ -126,8 +127,10 @@ Selected usable tags:
 	
 Complete list of usable tags in format string:
 
-%fid%, %aid%, %eid%, %gid%, %lid%, %status%, %size%, %ed2k%, %md5%, %sha1%, %crc32%, %color_depth%,
-%quality%, %source%, %audio_codec%, %audio_bitrate%, %video_codec%, %video_bitrate%, %resolution%,
-%filetype%, %dub_language%, %sub_language%, %length%, %aired%, %filename%, %ep_total%, %ep_last%, %year%,
-%a_type%, %a_categories%, %a_romaji%, %a_kanji%, %a_english%, %a_other%, %a_short%, %a_synonyms%, %ep_no%,
-%ep_english%, %ep_romaji%, %ep_kanji%, %g_name%, %g_sname%, %version%, %censored%
+.. code-block::  bash
+
+    %fid%, %aid%, %eid%, %gid%, %lid%, %status%, %size%, %ed2k%, %md5%, %sha1%, %crc32%, %color_depth%,
+    %quality%, %source%, %audio_codec%, %audio_bitrate%, %video_codec%, %video_bitrate%, %resolution%,
+    %filetype%, %dub_language%, %sub_language%, %length%, %aired%, %filename%, %ep_total%, %ep_last%, %year%,
+    %a_type%, %a_categories%, %a_romaji%, %a_kanji%, %a_english%, %a_other%, %a_short%, %a_synonyms%, %ep_no%,
+    %ep_english%, %ep_romaji%, %ep_kanji%, %g_name%, %g_sname%, %version%, %censored%
