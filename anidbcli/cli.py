@@ -9,7 +9,7 @@ import anidbcli.output as output
 import anidbcli.operations as operations
 
 @click.group(name="anidbcli")
-@click.version_option(version="1.52", prog_name="anidbcli")
+@click.version_option(version="1.53", prog_name="anidbcli")
 @click.option("--recursive", "-r", is_flag=True, default=False, help="Scan folders for files recursively.")
 @click.option("--extensions", "-e",  help="List of file extensions separated by , character.")
 @click.option("--quiet", "-q", is_flag=True, default=False, help="Display only warnings and errors.")
@@ -55,9 +55,10 @@ def ed2k(ctx , files, clipboard):
 @click.option("--date-format", "-d", default="%Y-%m-%d", help="Date format. See documentation for details.")
 @click.option("--delete-empty", "-x", default=False, is_flag=True, help="Delete empty folders after moving files.")
 @click.option("--persistent", "-t", default=False, is_flag=True, help="Save session info for next invocations with this parameter. (35 minutes session lifetime)")
+@click.option("--abort", default=False, is_flag=True, help="Abort if an usable tag is empty.")
 @click.argument("files", nargs=-1, type=click.Path(exists=True))
 @click.pass_context
-def api(ctx, username, password, apikey, add, rename, files, keep_structure, date_format, delete_empty, link, softlink, persistent):
+def api(ctx, username, password, apikey, add, rename, files, keep_structure, date_format, delete_empty, link, softlink, persistent, abort):
     if (not add and not rename):
         ctx.obj["output"].info("Nothing to do.")
         return
@@ -73,7 +74,7 @@ def api(ctx, username, password, apikey, add, rename, files, keep_structure, dat
         pipeline.append(operations.MylistAddOperation(conn, ctx.obj["output"]))
     if rename:
         pipeline.append(operations.GetFileInfoOperation(conn, ctx.obj["output"]))
-        pipeline.append(operations.RenameOperation(ctx.obj["output"], rename, date_format, delete_empty, keep_structure, softlink, link))
+        pipeline.append(operations.RenameOperation(ctx.obj["output"], rename, date_format, delete_empty, keep_structure, softlink, link, abort))
     to_process = get_files_to_process(files, ctx)
     for file in to_process:
         file_obj = {}

@@ -18,6 +18,11 @@ API_ENDPOINT_MYLYST_ADD = "MYLISTADD size=%d&ed2k=%s&viewed=1"
 RESULT_FILE = 220
 RESULT_MYLIST_ENTRY_ADDED = 210
 RESULT_ALREADY_IN_MYLIST = 310
+
+
+def IsNullOrWhitespace(s):
+        return s is None or s.isspace() or s == ""
+
 class Operation:
     @abstractmethod
     def Process(self, file): pass
@@ -59,6 +64,8 @@ class GetFileInfoOperation(Operation):
     def __init__(self, connector, output):
         self.connector = connector
         self.output = output
+
+
     def Process(self, file):
         try:
             res = self.connector.send_request(API_ENDPOINT_FILE % (file["size"], file["ed2k"]))
@@ -136,9 +143,9 @@ class GetFileInfoOperation(Operation):
         if status & 64: fileinfo["censored"] = "uncensored"
         if status & 128: fileinfo["censored"] = "censored"
 
-        if (fileinfo["ep_english"] is None or fileinfo["ep_english"].isspace()):
+        if IsNullOrWhitespace(fileinfo["ep_english"]):
             fileinfo["ep_english"] = fileinfo["ep_romaji"]
-        if (fileinfo["a_english"] is None or fileinfo["a_english"].isspace()):
+        if IsNullOrWhitespace(fileinfo["a_english"]):
             fileinfo["a_english"] = fileinfo["a_romaji"]
 
         file["info"] = fileinfo
@@ -146,7 +153,7 @@ class GetFileInfoOperation(Operation):
         return True
 
 class RenameOperation(Operation):
-    def __init__(self, output, target_path, date_format, delete_empty, keep_structure, soft_link, hard_link):
+    def __init__(self, output, target_path, date_format, delete_empty, keep_structure, soft_link, hard_link, abort):
         self.output = output
         self.target_path = target_path
         self.date_format = date_format
@@ -154,6 +161,7 @@ class RenameOperation(Operation):
         self.keep_structure = keep_structure
         self.soft_link = soft_link
         self.hard_link = hard_link
+        self.abort = abort
     def Process(self, file):
         try:
             file["info"]["aired"] = file["info"]["aired"].strftime(self.date_format)
@@ -165,6 +173,9 @@ class RenameOperation(Operation):
                 pass # Invalid input format, leave as is
         target = self.target_path
         for tag in file["info"]:
+            if (self.abort and ("%"+tag+"%" in target) and IsNullOrWhitespace(file["info"][tag])):
+                self.output.error("Rename aborted, " + tag + " is empty.")
+                return
             target = target.replace("%"+tag+"%", filename_friendly(file["info"][tag])) # Remove path invalid characters
         target = ' '.join(target.split()) # Replace multiple whitespaces with one
         filename, base_ext = os.path.splitext(file["path"])
