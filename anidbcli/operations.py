@@ -14,9 +14,11 @@ API_ENDPOINT_FILE_ONLY_ANIMEINFO = "FILE size=%d&ed2k=%s&fmask=0000000000&amask=
 
 
 API_ENDPOINT_MYLYST_ADD = "MYLISTADD size=%d&ed2k=%s&viewed=1"
+API_ENDPOINT_MYLYST_EDIT = "MYLISTADD size=%d&ed2k=%s&edit=1&viewed=1"
 
 RESULT_FILE = 220
 RESULT_MYLIST_ENTRY_ADDED = 210
+RESULT_MYLIST_ENTRY_EDITED = 311
 RESULT_ALREADY_IN_MYLIST = 310
 
 
@@ -38,6 +40,12 @@ class MylistAddOperation(Operation):
                 self.output.success("Mylist entry added.")
             elif res["code"] == RESULT_ALREADY_IN_MYLIST:
                 self.output.warning("Already in mylist.")
+                res = self.connector.send_request(API_ENDPOINT_MYLYST_EDIT % (file["size"], file["ed2k"]))
+                if res["code"] == RESULT_MYLIST_ENTRY_EDITED:
+                    self.output.success("Mylist entry marked as watched.")
+                else:
+                    self.output.warning("Could not mark as watched.")
+
             else:
                 self.output.error("Couldn't add to mylist: %s" % res["data"])
         except Exception as e:
