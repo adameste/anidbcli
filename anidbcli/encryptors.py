@@ -26,5 +26,5 @@ class Aes128TextEncryptor(TextCrypto):
         return self.aes.encrypt(message)
     def Decrypt(self, message):
         ret = self.aes.decrypt(message)
-        ret = ret.decode("utf-8")
+        ret = ret.decode("utf-8", errors="ignore")
         return unpad(ret)

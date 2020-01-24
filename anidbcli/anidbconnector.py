@@ -8,7 +8,7 @@ import anidbcli.encryptors as encryptors
 API_ADDRESS = "api.anidb.net"
 API_PORT = 9000
 SOCKET_TIMEOUT = 5
-MAX_RECEIVE_SIZE = 4096 # Max size of an UDP packet is about 1400B anyway
+MAX_RECEIVE_SIZE = 65507 # Max size of an UDP packet is about 1400B anyway
 RETRY_COUNT = 3
 
 API_ENDPOINT_ENCRYPT = "ENCRYPT user=%s&type=1"
