@@ -94,7 +94,7 @@ def get_connector(apikey, username, password, persistent):
             with open(path, "r") as file:
                 lines = file.read()
                 data = json.loads(lines)
-                if ((time.time() - data["timestamp"]) < 60 * 34):
+                if ((time.time() - data["timestamp"]) < 60 * 10):
                     conn = anidbconnector.AnidbConnector.create_from_session(data["session_key"], data["sockaddr"], apikey, data["salt"])
     if (conn != None): return conn
     if apikey:
