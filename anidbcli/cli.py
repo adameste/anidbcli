@@ -56,9 +56,10 @@ def ed2k(ctx , files, clipboard):
 @click.option("--delete-empty", "-x", default=False, is_flag=True, help="Delete empty folders after moving files.")
 @click.option("--persistent", "-t", default=False, is_flag=True, help="Save session info for next invocations with this parameter. (35 minutes session lifetime)")
 @click.option("--abort", default=False, is_flag=True, help="Abort if an usable tag is empty.")
+@click.option("--state", default=0, help="Specify the file state. (0-4)")
 @click.argument("files", nargs=-1, type=click.Path(exists=True))
 @click.pass_context
-def api(ctx, username, password, apikey, add, rename, files, keep_structure, date_format, delete_empty, link, softlink, persistent, abort):
+def api(ctx, username, password, apikey, add, rename, files, keep_structure, date_format, delete_empty, link, softlink, persistent, abort, state):
     if (not add and not rename):
         ctx.obj["output"].info("Nothing to do.")
         return
@@ -71,7 +72,7 @@ def api(ctx, username, password, apikey, add, rename, files, keep_structure, dat
     pipeline = []
     pipeline.append(operations.HashOperation(ctx.obj["output"]))
     if add:
-        pipeline.append(operations.MylistAddOperation(conn, ctx.obj["output"]))
+        pipeline.append(operations.MylistAddOperation(conn, ctx.obj["output"], state))
     if rename:
         pipeline.append(operations.GetFileInfoOperation(conn, ctx.obj["output"]))
         pipeline.append(operations.RenameOperation(ctx.obj["output"], rename, date_format, delete_empty, keep_structure, softlink, link, abort))
