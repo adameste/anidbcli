@@ -13,8 +13,8 @@ API_ENDPOINT_FILE = "FILE size=%d&ed2k=%s&fmask=79FAFFE900&amask=F2FCF0C0"
 API_ENDPOINT_FILE_ONLY_ANIMEINFO = "FILE size=%d&ed2k=%s&fmask=0000000000&amask=F2FCF0C0"
 
 
-API_ENDPOINT_MYLYST_ADD = "MYLISTADD size=%d&ed2k=%s&viewed=1"
-API_ENDPOINT_MYLYST_EDIT = "MYLISTADD size=%d&ed2k=%s&edit=1&viewed=1"
+API_ENDPOINT_MYLYST_ADD = "MYLISTADD size=%d&ed2k=%s&viewed=1&state=%s"
+API_ENDPOINT_MYLYST_EDIT = "MYLISTADD size=%d&ed2k=%s&edit=1&viewed=1&state=%s"
 
 RESULT_FILE = 220
 RESULT_MYLIST_ENTRY_ADDED = 210
@@ -30,17 +30,18 @@ class Operation:
     def Process(self, file): pass
 
 class MylistAddOperation(Operation):
-    def __init__(self, connector, output):
+    def __init__(self, connector, output, state):
         self.connector = connector
         self.output = output
+        self.state = state 
     def Process(self, file):
         try:
-            res = self.connector.send_request(API_ENDPOINT_MYLYST_ADD % (file["size"], file["ed2k"]))
+            res = self.connector.send_request(API_ENDPOINT_MYLYST_ADD % (file["size"], file["ed2k"], int(self.state)))
             if res["code"] == RESULT_MYLIST_ENTRY_ADDED:
                 self.output.success("Mylist entry added.")
             elif res["code"] == RESULT_ALREADY_IN_MYLIST:
                 self.output.warning("Already in mylist.")
-                res = self.connector.send_request(API_ENDPOINT_MYLYST_EDIT % (file["size"], file["ed2k"]))
+                res = self.connector.send_request(API_ENDPOINT_MYLYST_EDIT % (file["size"], file["ed2k"], int(self.state)))
                 if res["code"] == RESULT_MYLIST_ENTRY_EDITED:
                     self.output.success("Mylist entry marked as watched.")
                 else:
