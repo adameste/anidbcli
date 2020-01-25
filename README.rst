@@ -80,7 +80,7 @@ Optionally, if you don't provide password or username, you will be prompted to i
     Enter your username: "username"
     Enter your password: "password"
 
-To set located files to a specified state use:
+To set files to a specified state use:
 
 .. code-block:: bash
         
