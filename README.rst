@@ -80,6 +80,19 @@ Optionally, if you don't provide password or username, you will be prompted to i
     Enter your username: "username"
     Enter your password: "password"
 
+To set files to a specified state use:
+
+.. code-block:: bash
+        
+        anidbcli -r -e mkv api -u "username" -p "password" -k "apikey" --state 0 -a "path/to/directory"
+
+The number 0 can be substituted for different states:
+        * 0 is unknown (default)
+        * 1 is internal storage
+        * 2 is external storage
+        * 3 is deleted
+        * 4 is remote storage
+
 To rename all mkv and mp4 files in directory recursively using data from api you can call
 
 .. code-block:: bash
