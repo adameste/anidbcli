@@ -9,7 +9,7 @@ import anidbcli.output as output
 import anidbcli.operations as operations
 
 @click.group(name="anidbcli")
-@click.version_option(version="1.62", prog_name="anidbcli")
+@click.version_option(version="1.63", prog_name="anidbcli")
 @click.option("--recursive", "-r", is_flag=True, default=False, help="Scan folders for files recursively.")
 @click.option("--extensions", "-e",  help="List of file extensions separated by , character.")
 @click.option("--quiet", "-q", is_flag=True, default=False, help="Display only warnings and errors.")
@@ -48,7 +48,7 @@ def ed2k(ctx , files, clipboard):
 @click.option('--password', "-p", prompt=True, hide_input=True)
 @click.option('--apikey', "-k")
 @click.option("--add", "-a", is_flag=True, default=False, help="Add files to mylist.")
-@click.option("--unwatched", "-u", is_flag=True, default=False, help="Add files to mylist as unwatched. Use with -a flag.")
+@click.option("--unwatched", "-U", is_flag=True, default=False, help="Add files to mylist as unwatched. Use with -a flag.")
 @click.option("--rename", "-r",  default=None, help="Rename the files according to provided format. See documentation for more info.")
 @click.option("--link", "-h", is_flag=True,  default=False, help="Create a hardlink instead of renaming. Should be used with rename parameter.")
 @click.option("--softlink", "-l", is_flag=True, default=False, help="Create a symbolic link instead of renaming. Should be used with rename parameter.")
