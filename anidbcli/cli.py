@@ -9,7 +9,7 @@ import anidbcli.output as output
 import anidbcli.operations as operations
 
 @click.group(name="anidbcli")
-@click.version_option(version="1.61", prog_name="anidbcli")
+@click.version_option(version="1.62", prog_name="anidbcli")
 @click.option("--recursive", "-r", is_flag=True, default=False, help="Scan folders for files recursively.")
 @click.option("--extensions", "-e",  help="List of file extensions separated by , character.")
 @click.option("--quiet", "-q", is_flag=True, default=False, help="Display only warnings and errors.")
@@ -48,6 +48,7 @@ def ed2k(ctx , files, clipboard):
 @click.option('--password', "-p", prompt=True, hide_input=True)
 @click.option('--apikey', "-k")
 @click.option("--add", "-a", is_flag=True, default=False, help="Add files to mylist.")
+@click.option("--unwatched", "-u", is_flag=True, default=False, help="Add files to mylist as unwatched. Use with -a flag.")
 @click.option("--rename", "-r",  default=None, help="Rename the files according to provided format. See documentation for more info.")
 @click.option("--link", "-h", is_flag=True,  default=False, help="Create a hardlink instead of renaming. Should be used with rename parameter.")
 @click.option("--softlink", "-l", is_flag=True, default=False, help="Create a symbolic link instead of renaming. Should be used with rename parameter.")
@@ -59,7 +60,7 @@ def ed2k(ctx , files, clipboard):
 @click.option("--state", default=0, help="Specify the file state. (0-4)")
 @click.argument("files", nargs=-1, type=click.Path(exists=True))
 @click.pass_context
-def api(ctx, username, password, apikey, add, rename, files, keep_structure, date_format, delete_empty, link, softlink, persistent, abort, state):
+def api(ctx, username, password, apikey, add, unwatched, rename, files, keep_structure, date_format, delete_empty, link, softlink, persistent, abort, state):
     if (not add and not rename):
         ctx.obj["output"].info("Nothing to do.")
         return
@@ -72,7 +73,7 @@ def api(ctx, username, password, apikey, add, rename, files, keep_structure, dat
     pipeline = []
     pipeline.append(operations.HashOperation(ctx.obj["output"]))
     if add:
-        pipeline.append(operations.MylistAddOperation(conn, ctx.obj["output"], state))
+        pipeline.append(operations.MylistAddOperation(conn, ctx.obj["output"], state, unwatched))
     if rename:
         pipeline.append(operations.GetFileInfoOperation(conn, ctx.obj["output"]))
         pipeline.append(operations.RenameOperation(ctx.obj["output"], rename, date_format, delete_empty, keep_structure, softlink, link, abort))
