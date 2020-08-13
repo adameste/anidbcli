@@ -7,12 +7,14 @@ from joblib import Parallel, delayed
 CHUNK_SIZE = 9728000 # 9500KB
 MAX_CORES = 4
 
-def get_ed2k_link(file_path):
+def get_ed2k_link(file_path, file_hash=None):		
     name = os.path.basename(file_path)
     filesize = os.path.getsize(file_path)
-    md4 = hash_file(file_path)
+    if file_hash is None:
+        md4 = hash_file(file_path)
+    else:
+        md4 = file_hash
     return "ed2k://|file|%s|%d|%s|" % (name,filesize, md4)
-
 
 def md4_hash(data):
         m = hashlib.new('md4')
