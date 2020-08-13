@@ -87,7 +87,7 @@ To set files to a specified state use:
         anidbcli -r -e mkv api -u "username" -p "password" -k "apikey" --state 0 --show-ed2k -a "path/to/directory"
 
 Where
-    * **"show-ed2k"** is an optional parameter to show print out ed2k links, while adding/renaming files.
+    * **"show-ed2k"** is an optional parameter to show/print out ed2k links, while adding/renaming files.
     * **"state"** is your desired MyList file state (see https://wiki.anidb.net/Filestates).
 
 The number 0 can be substituted for different states:
