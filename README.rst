@@ -70,7 +70,7 @@ To add all mkv files from directory resursively to mylist use:
 Where
     * **"password"** is your anidb password
     * **"username"** is your anidb username
-    * **"apikey"** is anidb upd api key, that you can set at http://anidb.net/perl-bin/animedb.pl?show=profile. If no key is provided, unencrypted connection will be used.
+    * **"apikey"** is anidb upd api key, that you can set at https://anidb.net/user/setting. If no key is provided, unencrypted connection will be used.
 
 Optionally, if you don't provide password or username, you will be prompted to input them.
 
@@ -84,7 +84,11 @@ To set files to a specified state use:
 
 .. code-block:: bash
         
-        anidbcli -r -e mkv api -u "username" -p "password" -k "apikey" --state 0 -a "path/to/directory"
+        anidbcli -r -e mkv api -u "username" -p "password" -k "apikey" --state 0 --show-ed2k -a "path/to/directory"
+
+Where
+    * **"show-ed2k"** is an optional parameter to show print out ed2k links, while adding/renaming files.
+    * **"state"** is your desired MyList file state (see https://wiki.anidb.net/Filestates).
 
 The number 0 can be substituted for different states:
         * 0 is unknown (default)

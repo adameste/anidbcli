@@ -58,9 +58,10 @@ def ed2k(ctx , files, clipboard):
 @click.option("--persistent", "-t", default=False, is_flag=True, help="Save session info for next invocations with this parameter. (35 minutes session lifetime)")
 @click.option("--abort", default=False, is_flag=True, help="Abort if an usable tag is empty.")
 @click.option("--state", default=0, help="Specify the file state. (0-4)")
+@click.option("--show-ed2k", default=False, is_flag=True, help="Show ed2k link of processed file (while adding or renaming files).")
 @click.argument("files", nargs=-1, type=click.Path(exists=True))
 @click.pass_context
-def api(ctx, username, password, apikey, add, unwatched, rename, files, keep_structure, date_format, delete_empty, link, softlink, persistent, abort, state):
+def api(ctx, username, password, apikey, add, unwatched, rename, files, keep_structure, date_format, delete_empty, link, softlink, persistent, abort, state, show_ed2k):
     if (not add and not rename):
         ctx.obj["output"].info("Nothing to do.")
         return
@@ -71,7 +72,7 @@ def api(ctx, username, password, apikey, add, unwatched, rename, files, keep_str
         ctx.obj["output"].error(e)
         exit(1)
     pipeline = []
-    pipeline.append(operations.HashOperation(ctx.obj["output"]))
+    pipeline.append(operations.HashOperation(ctx.obj["output"], show_ed2k))
     if add:
         pipeline.append(operations.MylistAddOperation(conn, ctx.obj["output"], state, unwatched))
     if rename:
@@ -82,6 +83,7 @@ def api(ctx, username, password, apikey, add, unwatched, rename, files, keep_str
         file_obj = {}
         file_obj["path"] = file
         ctx.obj["output"].info("Processing file \"" + file +"\"")
+
         for operation in pipeline:
             res = operation.Process(file_obj)
             if not res: # Critical error, cannot proceed with pipeline

@@ -50,7 +50,6 @@ class MylistAddOperation(Operation):
                     self.output.success("Mylist entry state updated.")
                 else:
                     self.output.warning("Could not mark as watched.")
-
             else:
                 self.output.error("Couldn't add to mylist: %s" % res["data"])
         except Exception as e:
@@ -59,8 +58,9 @@ class MylistAddOperation(Operation):
         return True
 
 class HashOperation(Operation):
-    def __init__(self, output):
+    def __init__(self, output, show_ed2k):
         self.output = output
+        self.show_ed2k = show_ed2k
     def Process(self, file):
         try:
             link = libed2k.hash_file(file["path"])
@@ -70,6 +70,8 @@ class HashOperation(Operation):
         file["ed2k"] = link
         file["size"] = os.path.getsize(file["path"])
         self.output.success("Generated ed2k link.")
+        if self.show_ed2k:
+            self.output.info(libed2k.get_ed2k_link(file["path"], file["ed2k"]))
         return True
 
 
