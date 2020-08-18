@@ -163,7 +163,7 @@ class GetFileInfoOperation(Operation):
         if IsNullOrWhitespace(fileinfo["a_english"]):
             fileinfo["a_english"] = fileinfo["a_romaji"]
 
-        file["info"] = fileinfo
+        file["info"] = construct_helper_tags(fileinfo)
         self.output.success("Successfully grabbed file info.")
         return True
 
@@ -231,8 +231,24 @@ def filename_friendly(input):
 def parse_data(raw_data):
     res = raw_data.split("|")
     for idx, item in enumerate(res):
+        item = item.replace("'", "§") # preseve lists by converting UDP list delimiter ' to § (§ seems unused in AniDB)
         item = item.replace("<br />", "\n")
         item = item.replace("/", "|")
         item = item.replace("`", "'")
         res[idx] = item
     return res
+
+def construct_helper_tags(fileinfo):
+    year_list = re.findall('(\d{4})', fileinfo["year"])
+    if (len(year_list) > 0):
+        fileinfo["year_start"] = year_list[0]
+        fileinfo["year_end"] = year_list[-1]
+    else:
+        fileinfo["year_start"] = fileinfo["year_end"] = fileinfo["year"]
+
+    res_match = re.findall('x(360|480|720|1080|2160)', fileinfo["resolution"])
+    if (len(res_match) > 0):
+        fileinfo["resolution_abbr"] = res_match[0] + 'p'
+    else:
+        fileinfo["resolution_abbr"] = fileinfo["resolution"]
+    return fileinfo
