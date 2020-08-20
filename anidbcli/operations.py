@@ -5,6 +5,7 @@ import re
 import glob
 import errno
 import time
+import shutil
 
 import anidbcli.libed2k as libed2k 
 
@@ -211,7 +212,7 @@ class RenameOperation(Operation):
                     os.link(f, tmp_tgt + file_extension)
                     self.output.success("Created hard link: \"%s\"" % (tmp_tgt + file_extension))
                 else:
-                    os.rename(f, tmp_tgt + file_extension)
+                    shutil.move(f, tmp_tgt + file_extension)
                     self.output.success("File renamed to: \"%s\"" % (tmp_tgt + file_extension))
             except:
                 self.output.error("Failed to rename/link to: \"%s\"" % (tmp_tgt + file_extension) + "\n")
