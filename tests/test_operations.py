@@ -7,28 +7,37 @@ import glob
 
 def test_add_ok():
     conn = flexmock.flexmock(send_request=lambda x: {"code": 210, "data": "MYLIST ENTRY ADDED"})
-    conn.should_call("send_request").once().with_args("MYLISTADD size=42&ed2k=ABC1234&viewed=1")
+    conn.should_call("send_request").once().with_args("MYLISTADD size=42&ed2k=ABC1234&viewed=1&state=0")
     out = flexmock.flexmock()
     out.should_receive("success").once()
-    oper = operations.MylistAddOperation(conn, out)
+    oper = operations.MylistAddOperation(conn, out, 0, False)
     f = {"size": 42, "ed2k": "ABC1234"}
     oper.Process(f)
 
+def already_send_request(x):
+    if ("edit" in x):
+        return {"code": 311, "data": "MYLIST ENTRY EDITED"}
+    else:
+        return {"code": 310, "data": "ALREADY IN MYLIST"}
+    
+
 def test_add_already_in_mylist():
-    conn = flexmock.flexmock(send_request=lambda x: {"code": 310, "data": "ALREADY IN MYLIST"})
-    conn.should_call("send_request").once().with_args("MYLISTADD size=42&ed2k=ABC1234&viewed=1")
-    out = flexmock.flexmock()
+    conn = flexmock.flexmock(send_request=already_send_request)
+    conn.should_call("send_request").with_args("MYLISTADD size=42&ed2k=ABC1234&viewed=1&state=0").and_return({"code": 310, "data": "ALREADY IN MYLIST"}).once().ordered()
+    conn.should_call("send_request").with_args("MYLISTADD size=42&ed2k=ABC1234&edit=1&viewed=1&state=0").and_return({"code": 311, "data": "MYLIST ENTRY EDITED"}).once().ordered()      
+    out = flexmock.flexmock(error=lambda x: print(x))
     out.should_receive("warning").once()
-    oper = operations.MylistAddOperation(conn, out)
+    out.should_receive("error")
+    oper = operations.MylistAddOperation(conn, out, 0, False)
     f = {"size": 42, "ed2k": "ABC1234"}
     oper.Process(f)
 
 def test_add_send_exception():
     conn = flexmock.flexmock()
-    conn.should_receive("send_request").once().with_args("MYLISTADD size=42&ed2k=ABC1234&viewed=1").and_raise(Exception)
+    conn.should_receive("send_request").once().with_args("MYLISTADD size=42&ed2k=ABC1234&viewed=1&state=0").and_raise(Exception)
     out = flexmock.flexmock()
     out.should_receive("error").once()
-    oper = operations.MylistAddOperation(conn, out)
+    oper = operations.MylistAddOperation(conn, out, 0, False)
     f = {"size": 42, "ed2k": "ABC1234"}
     oper.Process(f)
 
@@ -74,7 +83,7 @@ def test_hash_operation():
     f = {"path": filename}
     out = flexmock.flexmock(error=lambda x:print(x))
     out.should_receive("success").once()
-    oper = operations.HashOperation(out)
+    oper = operations.HashOperation(out, False)
     oper.Process(f)
     os.remove(filename)
     assert f["size"] == 31457280
@@ -84,7 +93,7 @@ def test_hash_error():
     filename = "asdasdasdasoasdjasiasd.tmp"
     out = flexmock.flexmock()
     out.should_receive("error").once()
-    oper = operations.HashOperation(out)
+    oper = operations.HashOperation(out, False)
     f = {"path": filename}
     assert not oper.Process(f) # pipeline should not continue without valid hash
 
@@ -110,8 +119,8 @@ def test_rename_works_with_subtitles():
     os_mock.should_receive("makedirs").at_least().once()
     lst = [filename, "test/abcd.srt"]
     glob_mock.should_receive("glob").and_return(lst)
-    oper = operations.RenameOperation(out, target, "%Y-%m-%d", False, False, False, False)
-    oper2 = operations.RenameOperation(out, target, "%Y-%m-%d", False, True, False, True)
+    oper = operations.RenameOperation(out, target, "%Y-%m-%d", False, False, False, False, False)
+    oper2 = operations.RenameOperation(out, target, "%Y-%m-%d", False, True, False, True, False)
     oper.Process(f)
     assert f["path"] != filename # Should be changed for next elements in pipeline
     f["path"] = filename
