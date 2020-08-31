@@ -11,7 +11,7 @@ class PlainTextCrypto(TextCrypto):
     def Encrypt(self, message):
         return bytes(message, "utf-8")
     def Decrypt(self, message):
-        return message.decode("utf-8")
+        return message.decode("utf-8", errors="replace")
 
 BS = 16
 pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS) 
