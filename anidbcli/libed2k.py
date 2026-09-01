@@ -30,12 +30,22 @@ def hash_file(file_path):
             if x:
                 yield x
             else:
+                # ED2K Quirk:
+                # If file size is an exact multiple of the chunk size, 
+                # an extra 0-byte chunk MUST be appended and hashed.
+                if f.tell() > 0 and f.tell() % CHUNK_SIZE == 0:
+                    yield b""
                 return 
 
     with open(file_path, 'rb') as f:
         a = generator(f)
         num_cores = min(multiprocessing.cpu_count(), MAX_CORES)
-        hashes = Parallel(n_jobs=num_cores)(delayed(md4_hash)(i) for i in a)
+        
+        # prefer="threads" avoids massive memory copying/IPC overhead
+        hashes = Parallel(n_jobs=num_cores, prefer="threads")(delayed(md4_hash)(i) for i in a)
+        
+        # If there's only 1 chunk, the final hash is just the chunk's hash.
+        # Otherwise, hash the concatenated chunk hashes.
         if len(hashes) == 1:
             return hashes[0].hex()
         else:
