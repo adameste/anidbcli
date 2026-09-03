@@ -240,7 +240,7 @@ def parse_data(raw_data):
     return res
 
 def construct_helper_tags(fileinfo):
-    year_list = re.findall('(\d{4})', fileinfo["year"])
+    year_list = re.findall(r'(\d{4})', fileinfo["year"])
     if (len(year_list) > 0):
         fileinfo["year_start"] = year_list[0]
         fileinfo["year_end"] = year_list[-1]
